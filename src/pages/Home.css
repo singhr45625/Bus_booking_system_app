@@ -1,0 +1,415 @@
+/* Home.css - RedBus Specific Layouts */
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Hero Section */
+.rb-hero {
+  width: 100%;
+  position: relative;
+  background: linear-gradient(135deg, #d84e55, #c23840);
+  padding: 5rem 0 8rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+}
+
+.rb-hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Search Widget */
+.rb-search-widget {
+  background: white;
+  border-radius: 30px;
+  display: flex;
+  position: absolute;
+  bottom: -35px; /* Overlaps boundary */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  overflow: hidden;
+  align-items: center;
+  height: 70px;
+  width: 90%;
+  max-width: 1000px;
+}
+
+.rb-input-col {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  border-right: 1px solid var(--border-color);
+  height: 100%;
+}
+
+.rb-input-icon {
+  margin-right: 1rem;
+  display: flex;
+}
+
+.rb-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.rb-input-wrapper label {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.rb-input-wrapper input {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  outline: none;
+  width: 100%;
+}
+
+/* Input Placeholder */
+.rb-input-wrapper input::placeholder {
+  color: #ccc;
+  font-weight: 500;
+}
+
+/* Date input styling */
+.rb-input-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.rb-search-btn {
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  height: 100%;
+  padding: 0 2rem;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  min-width: 180px;
+  transition: 0.2s;
+}
+
+.rb-search-btn:hover {
+  background: var(--primary-hover);
+}
+
+/* Offers Section */
+.rb-offers-section {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 6rem;
+  padding: 0 2rem;
+}
+
+.rb-offers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.rb-offers-header h2 {
+  font-size: 1.25rem;
+  color: var(--text-main);
+}
+
+.view-all-btn {
+  background: transparent;
+  color: #106fba;
+  border: 1px solid #106fba;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.view-all-btn:hover {
+  background: #f0f7fe;
+}
+
+.rb-offers-scroll {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.rb-offer-card {
+  min-width: 280px;
+  height: 140px;
+  border-radius: 16px;
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.offer-content span {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.offer-content strong {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  background: rgba(0,0,0,0.2);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Listing Section */
+.rb-listing-section {
+  width: 100%;
+  max-width: 1200px;
+  padding: 3rem 2rem;
+}
+
+.rb-results-title {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.rb-bus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.rb-bus-card {
+  display: flex;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid var(--border-color);
+  transition: 0.2s;
+}
+
+.rb-bus-card:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.rb-bus-details-left {
+  flex: 3;
+  padding: 1.5rem;
+  border-right: 1px solid var(--border-color);
+}
+
+.bus-name-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.bus-name-row h3 {
+  font-size: 1.25rem;
+  color: var(--text-main);
+  margin-right: 1rem;
+}
+
+.bus-type {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.bus-amenities {
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+.bus-timing-row {
+  display: flex;
+  align-items: center;
+  color: var(--text-main);
+}
+
+.time-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-block strong {
+  font-size: 1.4rem;
+}
+
+.time-loc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.time-duration {
+  flex: 1;
+  max-width: 150px;
+  margin: 0 2rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.duration-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border-color);
+  position: relative;
+}
+
+.duration-line::before, .duration-line::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  top: -3px;
+}
+
+.duration-line::before { left: 0; }
+.duration-line::after { right: 0; background: var(--primary); }
+
+.rb-bus-details-right {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  background: #fdfdfd;
+  border-radius: 0 8px 8px 0;
+}
+
+.price-tag {
+  display: flex;
+  align-items: baseline;
+}
+
+.price-tag .currency {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.price-tag .amount {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.seat-availability {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  margin-top: 0.2rem;
+}
+
+.seat-availability strong {
+  color: var(--accent);
+}
+
+.booking-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.seat-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.seat-input:focus {
+  border-color: var(--primary);
+}
+
+.view-seats-btn {
+  background: var(--primary);
+  color: white;
+  width: 100%;
+  padding: 0.7rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.view-seats-btn:hover {
+  background: var(--primary-hover);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--text-muted);
+}
+
+.empty-state h2 {
+  color: var(--text-main);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .rb-search-widget {
+    flex-direction: column;
+    height: auto;
+    bottom: -100px;
+    border-radius: 16px;
+  }
+  .rb-input-col {
+    padding: 1rem;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+  }
+  .rb-search-btn {
+    width: 100%;
+    padding: 1rem;
+  }
+  .rb-offers-section {
+    margin-top: 8rem;
+  }
+  .rb-bus-card {
+    flex-direction: column;
+  }
+  .rb-bus-details-left {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .rb-bus-details-right {
+    align-items: center;
+    border-radius: 4px;
+  }
+}

@@ -5,6 +5,9 @@ import './App.css'
 import { AuthProvider } from './context/AuthContext'
 import axios from 'axios'
 
+// Set backend API URL for Render deployment
+axios.defaults.baseURL = 'https://smart-bus-booking-api.onrender.com';
+
 // Set up global axios interceptor to automatically attach JWT token to all requests
 axios.interceptors.request.use((config) => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));

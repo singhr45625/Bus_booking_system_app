@@ -19,13 +19,16 @@ export const AuthProvider = ({ children }) => {
     const { data } = await axios.post('/api/auth/login', { email, password });
     localStorage.setItem('userInfo', JSON.stringify(data));
     setUser(data);
+    return data;
   };
 
   const signup = async (username, email, password, role, companyName) => {
     const { data } = await axios.post('/api/auth/signup', { username, email, password, role, companyName });
     localStorage.setItem('userInfo', JSON.stringify(data));
     setUser(data);
+    return data;
   };
+
 
   const logout = () => {
     localStorage.removeItem('userInfo');

@@ -1,415 +1,570 @@
-/* Home.css - RedBus Specific Layouts */
+/* Home.css - Premium Bus Booking UI */
 
 .home-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
   width: 100%;
 }
 
 /* Hero Section */
-.rb-hero {
+.hero-section {
   width: 100%;
+  min-height: 480px;
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+  background-size: cover;
+  background-position: center;
   position: relative;
-  background: linear-gradient(135deg, #d84e55, #c23840);
-  padding: 5rem 0 8rem 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  color: white;
+  justify-content: center;
+  padding: 4rem 1rem;
 }
 
-.rb-hero-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
+.hero-content {
   text-align: center;
+  width: 100%;
+  max-width: 1100px;
 }
 
-/* Search Widget */
-.rb-search-widget {
+.hero-content h1 {
+  color: white;
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 3rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Search Box Widget */
+.search-box-container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.search-box {
   background: white;
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  box-shadow: var(--shadow-lg);
   display: flex;
-  position: absolute;
-  bottom: -35px; /* Overlaps boundary */
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  overflow: hidden;
   align-items: center;
-  height: 70px;
-  width: 90%;
-  max-width: 1000px;
+  width: 100%;
 }
 
-.rb-input-col {
+.input-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0;
+}
+
+.input-field {
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 0 1.5rem;
+  padding: 0.5rem 1.5rem;
   border-right: 1px solid var(--border-color);
-  height: 100%;
+  height: 64px;
 }
 
-.rb-input-icon {
+.input-icon {
   margin-right: 1rem;
+  color: var(--primary);
   display: flex;
+  align-items: center;
 }
 
-.rb-input-wrapper {
+.input-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  width: 100%;
+  align-items: flex-start;
+  flex: 1;
 }
 
-.rb-input-wrapper label {
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
+.input-wrapper label {
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
   margin-bottom: 2px;
 }
 
-.rb-input-wrapper input {
+.input-wrapper input {
   border: none;
   background: transparent;
-  padding: 0;
-  font-size: 1rem;
+  width: 100%;
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--text-main);
   outline: none;
-  width: 100%;
 }
 
-/* Input Placeholder */
-.rb-input-wrapper input::placeholder {
-  color: #ccc;
-  font-weight: 500;
+.input-wrapper input::placeholder {
+  color: #c0c0c0;
 }
 
-/* Date input styling */
-.rb-input-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0.5;
+.swap-btn {
+  background: white;
+  border: 1px solid var(--border-color);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  z-index: 10;
+  margin: 0 -20px;
+  color: var(--text-muted);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
 }
 
-.rb-search-btn {
+.swap-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: rotate(180deg);
+}
+
+.date-field {
+  border-right: none;
+}
+
+.search-btn {
   background: var(--primary);
   color: white;
-  font-weight: 700;
-  font-size: 1rem;
-  height: 100%;
-  padding: 0 2rem;
   border: none;
+  height: 64px;
+  padding: 0 2.5rem;
+  font-weight: 800;
+  font-size: 1.1rem;
+  border-radius: var(--radius-md);
+  margin-left: 1rem;
   cursor: pointer;
-  letter-spacing: 0.5px;
-  min-width: 180px;
-  transition: 0.2s;
+  transition: var(--transition);
+  white-space: nowrap;
 }
 
-.rb-search-btn:hover {
+.search-btn:hover:not(:disabled) {
   background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(216, 78, 85, 0.4);
+}
+
+.search-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 /* Offers Section */
-.rb-offers-section {
-  width: 100%;
-  max-width: 1200px;
-  margin-top: 6rem;
-  padding: 0 2rem;
+.offers-section {
+  padding: 4rem 5%;
 }
 
-.rb-offers-header {
+.section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.rb-offers-header h2 {
-  font-size: 1.25rem;
-  color: var(--text-main);
+.section-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--secondary);
 }
 
-.view-all-btn {
-  background: transparent;
-  color: #106fba;
-  border: 1px solid #106fba;
-  padding: 0.5rem 1rem;
+.view-all {
+  background: none;
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1.2rem;
   border-radius: 20px;
   font-weight: 600;
-  font-size: 0.85rem;
+  color: var(--text-main);
   cursor: pointer;
+  transition: var(--transition);
 }
 
-.view-all-btn:hover {
-  background: #f0f7fe;
+.view-all:hover {
+  background: var(--bg-light);
+  border-color: var(--text-main);
 }
 
-.rb-offers-scroll {
-  display: flex;
+.offers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: 1rem;
 }
 
-.rb-offer-card {
-  min-width: 280px;
-  height: 140px;
-  border-radius: 16px;
+.offer-card {
+  padding: 2rem;
+  border-radius: var(--radius-lg);
   color: white;
-  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  height: 180px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: var(--transition);
+  cursor: pointer;
 }
 
-.offer-content span {
-  font-size: 1.1rem;
+.offer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.offer-card.purple { background: linear-gradient(135deg, #7117ea, #ea07fe); }
+.offer-card.red { background: linear-gradient(135deg, #ff5f6d, #ffc371); }
+.offer-card.green { background: linear-gradient(135deg, #11998e, #38ef7d); }
+
+.offer-tag {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
   font-weight: 700;
-  display: block;
+  letter-spacing: 1px;
+}
+
+.offer-card h3 {
+  font-size: 1.4rem;
   margin-bottom: 0.5rem;
 }
 
-.offer-content strong {
-  font-size: 0.85rem;
-  opacity: 0.9;
-  background: rgba(0,0,0,0.2);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-}
-
 /* Listing Section */
-.rb-listing-section {
-  width: 100%;
-  max-width: 1200px;
-  padding: 3rem 2rem;
+.listing-section {
+  padding: 0 5% 4rem 5%;
 }
 
-.rb-results-title {
-  font-size: 1.2rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.5rem;
+.listing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
 }
 
-.rb-bus-list {
+.listing-header h2 {
+  font-size: 1.4rem;
+  color: var(--secondary);
+}
+
+.filters-short {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filters-short span {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.filters-short button {
+  background: white;
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.filters-short button.active {
+  background: var(--secondary);
+  color: white;
+  border-color: var(--secondary);
+}
+
+/* Bus Cards */
+.bus-cards-container {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.rb-bus-card {
-  display: flex;
+.bus-card {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  transition: 0.2s;
-}
-
-.rb-bus-card:hover {
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.rb-bus-details-left {
-  flex: 3;
-  padding: 1.5rem;
-  border-right: 1px solid var(--border-color);
-}
-
-.bus-name-row {
   display: flex;
-  align-items: baseline;
-  margin-bottom: 0.5rem;
+  overflow: hidden;
+  transition: var(--transition);
 }
 
-.bus-name-row h3 {
-  font-size: 1.25rem;
-  color: var(--text-main);
-  margin-right: 1rem;
+.bus-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: #d1d1d1;
 }
 
-.bus-type {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+.bus-info-main {
+  flex: 1;
+  padding: 2rem;
 }
 
-.bus-amenities {
-  font-size: 0.85rem;
-  color: var(--accent);
-  margin-bottom: 1.5rem;
-}
-
-.bus-timing-row {
+.operator-info {
   display: flex;
   align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.operator-info h3 {
+  font-size: 1.4rem;
   color: var(--text-main);
 }
 
-.time-block {
+.bus-type-badge {
+  font-size: 0.75rem;
+  background: #f1f3f5;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.journey-details {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.time-point {
   display: flex;
   flex-direction: column;
 }
 
-.time-block strong {
-  font-size: 1.4rem;
+.time-point .time {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--secondary);
 }
 
-.time-loc {
-  font-size: 0.85rem;
+.time-point .place {
+  font-size: 0.9rem;
   color: var(--text-muted);
   text-transform: capitalize;
 }
 
-.time-duration {
+.duration-line-container {
   flex: 1;
-  max-width: 150px;
-  margin: 0 2rem;
+  max-width: 200px;
+  margin: 0 3rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   position: relative;
 }
 
-.duration-line {
-  flex: 1;
+.duration-line-container .duration {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.duration-line-container .line {
+  width: 100%;
   height: 2px;
-  background: var(--border-color);
+  background: #e0e0e0;
   position: relative;
 }
 
-.duration-line::before, .duration-line::after {
+.duration-line-container .line::before,
+.duration-line-container .line::after {
   content: '';
   position: absolute;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--text-muted);
   top: -3px;
 }
 
-.duration-line::before { left: 0; }
-.duration-line::after { right: 0; background: var(--primary); }
+.duration-line-container .line::before {
+  left: 0;
+  background: #cbd0d6;
+}
 
-.rb-bus-details-right {
-  flex: 1;
-  padding: 1.5rem;
+.duration-line-container .line::after {
+  right: 0;
+  background: var(--primary);
+}
+
+.extra-info {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.rating .stars {
+  background: var(--accent);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.rating .count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.amenities {
+  display: flex;
+  gap: 1rem;
+}
+
+.amenity-chip {
+  font-size: 0.8rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+}
+
+.bus-info-side {
+  width: 280px;
+  background: #fafbfc;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-end;
-  background: #fdfdfd;
-  border-radius: 0 8px 8px 0;
+  border-left: 1px solid var(--border-color);
 }
 
-.price-tag {
+.price-container {
+  margin-bottom: 0.8rem;
+}
+
+.price-container .label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.price-container .price {
   display: flex;
   align-items: baseline;
+  gap: 4px;
 }
 
-.price-tag .currency {
+.price .curr {
   font-size: 1rem;
   font-weight: 600;
-  margin-right: 4px;
 }
 
-.price-tag .amount {
+.price .amt {
   font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--text-main);
+  font-weight: 800;
+  color: var(--secondary);
 }
 
-.seat-availability {
+.availability {
+  margin-bottom: 2rem;
+}
+
+.availability .seats {
+  font-weight: 800;
+  color: var(--accent);
+  margin-right: 5px;
+}
+
+.availability .text {
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin-bottom: 1rem;
-  margin-top: 0.2rem;
-}
-
-.seat-availability strong {
-  color: var(--accent);
-}
-
-.booking-action {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-  width: 100%;
-}
-
-.seat-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 0.9rem;
-  outline: none;
-}
-
-.seat-input:focus {
-  border-color: var(--primary);
 }
 
 .view-seats-btn {
   background: var(--primary);
   color: white;
-  width: 100%;
-  padding: 0.7rem;
-  font-weight: 700;
   border: none;
-  border-radius: 4px;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 800;
   cursor: pointer;
-  transition: 0.2s;
+  transition: var(--transition);
+  letter-spacing: 0.5px;
 }
 
 .view-seats-btn:hover {
   background: var(--primary-hover);
+  box-shadow: 0 4px 15px rgba(216, 78, 85, 0.3);
 }
 
-.empty-state {
+.no-buses {
   text-align: center;
-  padding: 4rem 0;
+  padding: 5rem 0;
   color: var(--text-muted);
 }
 
-.empty-state h2 {
-  color: var(--text-main);
-  margin-top: 1rem;
+.no-buses svg {
+  opacity: 0.2;
+  margin-bottom: 1.5rem;
+}
+
+.no-buses h3 {
+  font-size: 1.6rem;
+  color: var(--secondary);
   margin-bottom: 0.5rem;
 }
 
-/* Media Queries */
-@media (max-width: 768px) {
-  .rb-search-widget {
-    flex-direction: column;
-    height: auto;
-    bottom: -100px;
-    border-radius: 16px;
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .hero-content h1 {
+    font-size: 2.2rem;
   }
-  .rb-input-col {
-    padding: 1rem;
+  
+  .search-box {
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+  
+  .input-group {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .input-field {
+    width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
+    padding: 0.5rem 0;
+  }
+  
+  .swap-btn {
+    margin: -30px 0;
+    transform: rotate(90deg);
+  }
+  
+  .swap-btn:hover {
+    transform: rotate(270deg);
+  }
+  
+  .search-btn {
     width: 100%;
+    margin-left: 0;
   }
-  .rb-search-btn {
-    width: 100%;
-    padding: 1rem;
-  }
-  .rb-offers-section {
-    margin-top: 8rem;
-  }
-  .rb-bus-card {
+  
+  .bus-card {
     flex-direction: column;
   }
-  .rb-bus-details-left {
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-  }
-  .rb-bus-details-right {
-    align-items: center;
-    border-radius: 4px;
+  
+  .bus-info-side {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
   }
 }

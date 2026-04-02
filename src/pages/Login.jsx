@@ -11,8 +11,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate('/');
+      const loggedUser = await login(email, password);
+      if (loggedUser.role === 'operator') {
+        navigate('/operator/dashboard');
+      } else if (loggedUser.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       alert(err.response?.data?.error || 'Login failed');
     }

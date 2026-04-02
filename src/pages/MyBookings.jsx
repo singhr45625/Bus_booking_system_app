@@ -27,19 +27,24 @@ const MyBookings = () => {
         <p style={{ color: 'var(--text-muted)' }}>No bookings found.</p>
       ) : (
         bookings.map(b => (
-          <div key={b._id} className="booking-item">
-            <div>
-              <h3>{b.bus.name}</h3>
-              <p>{b.bus.source} to {b.bus.destination}</p>
-              <small style={{ color: 'var(--text-muted)' }}>{b.bus.departureTime} | {new Date(b.createdAt).toLocaleDateString()}</small>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ color: 'var(--accent)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Ticket size={18} /> {b.seatNumbers?.join(', ') || b.seats} Seat(s)
+            <div key={b._id} className="booking-item animate-fade">
+              <div className="booking-main-info">
+                <h3>{b.bus?.name || 'Bus Service'}</h3>
+                <p className="route-info">{b.bus?.source} ➔ {b.bus?.destination}</p>
+                <div className="passenger-compact">
+                  <strong>Passenger:</strong> {b.passengerDetails?.name || b.user?.username}
+                  <span className="contact">({b.passengerDetails?.email})</span>
+                </div>
+                <small className="booking-date">Booked on: {new Date(b.createdAt).toLocaleDateString()}</small>
               </div>
-              <span>${b.totalPrice}</span>
+              <div className="booking-meta">
+                <div className="seats-tag">
+                  <Ticket size={16} /> {b.seatNumbers?.join(', ')}
+                </div>
+                <div className="price-tag">₹{b.totalPrice}</div>
+                <span className={`status-badge ${b.status?.toLowerCase()}`}>{b.status}</span>
+              </div>
             </div>
-          </div>
         ))
       )}
     </div>

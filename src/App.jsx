@@ -9,6 +9,8 @@ import AdminManagement from './pages/AdminManagement';
 import OperatorDashboard from './pages/OperatorDashboard';
 import OperatorBuses from './pages/OperatorBuses';
 import OperatorBoarding from './pages/OperatorBoarding';
+import BusSearchResults from './pages/BusSearchResults';
+import BookingPage from './pages/BookingPage';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/search" element={<BusSearchResults />} />
+            <Route path="/booking/:busId" element={<BookingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/my-bookings" element={<MyBookings />} />

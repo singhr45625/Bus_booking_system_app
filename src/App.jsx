@@ -11,6 +11,8 @@ import OperatorBuses from './pages/OperatorBuses';
 import OperatorBoarding from './pages/OperatorBoarding';
 import BusSearchResults from './pages/BusSearchResults';
 import BookingPage from './pages/BookingPage';
+import Profile from './pages/Profile';
+import LiveTracking from './pages/LiveTracking';
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/tracking/:bookingId" element={<LiveTracking />} />
             
             {/* Admin Routes */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />

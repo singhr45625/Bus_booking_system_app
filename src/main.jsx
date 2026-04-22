@@ -5,8 +5,8 @@ import './App.css'
 import { AuthProvider } from './context/AuthContext'
 import axios from 'axios'
 
-// Set backend API URL for Render deployment
-axios.defaults.baseURL = 'https://smart-bus-booking-api.onrender.com';
+// Rely on Vite proxy for /api requests (configured in vite.config.js)
+// axios.defaults.baseURL = 'http://localhost:5000';
 
 // Set up global axios interceptor to automatically attach JWT token to all requests
 axios.interceptors.request.use((config) => {

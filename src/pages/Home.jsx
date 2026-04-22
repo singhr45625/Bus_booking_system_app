@@ -15,7 +15,7 @@ const Home = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!source || !destination || !date) return alert('Please fill all fields');
+    if (!source || !destination) return alert('Please enter both source and destination');
     navigate(`/search?source=${source}&destination=${destination}&date=${date}`);
   };
 
@@ -55,7 +55,7 @@ const Home = () => {
                   <Calendar className="input-icon" size={20} />
                   <div className="input-group">
                     <label>Date</label>
-                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
                   </div>
                 </div>
                 <button type="submit" className="search-submit">

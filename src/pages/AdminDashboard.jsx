@@ -7,6 +7,7 @@ import io from 'socket.io-client';
 import { Bus, Map as MapIcon, Users, Building, Wallet, Activity } from 'lucide-react';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const libraries = ['places'];
 
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -17,7 +18,8 @@ const AdminDashboard = () => {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries
   });
 
   useEffect(() => {
@@ -32,7 +34,7 @@ const AdminDashboard = () => {
     fetchStats();
 
     // Socket for fleet updates
-    socketRef.current = io('https://smart-bus-booking-api.onrender.com');
+    socketRef.current = io('http://localhost:5000');
     socketRef.current.on('fleetUpdate', (data) => {
       setFleet(data);
     });
@@ -118,13 +120,35 @@ const AdminDashboard = () => {
                     onClick={() => setSelectedBus(bus)}
                     icon={{
                       path: "M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zM4 12V6h11v6H4z",
-                      fillColor: "#FF385C",
+                      fillColor: bus.status === 'on_road' ? "#FF385C" : "#666",
                       fillOpacity: 1,
                       strokeWeight: 1,
                       strokeColor: "#ffffff",
                       scale: 1,
                       anchor: new window.google.maps.Point(12, 12),
-                      rotation: bus.bearing
+                      rotation: bus.bearing || 0
+                    }}
+                  />
+                ))}
+
+                {/* Show stops for selected bus */}
+                {selectedBus && selectedBus.intermediateStops && selectedBus.intermediateStops.map((stop, idx) => (
+                  <Marker
+                    key={`stop-${idx}`}
+                    position={{ lat: stop.lat, lng: stop.lng }}
+                    label={{
+                      text: stop.name,
+                      color: "#444",
+                      fontSize: "10px",
+                      fontWeight: "bold"
+                    }}
+                    icon={{
+                      path: window.google.maps.SymbolPath.CIRCLE,
+                      fillColor: stop.passed ? "#28a745" : "#ffc107",
+                      fillOpacity: 1,
+                      strokeWeight: 1,
+                      strokeColor: "#fff",
+                      scale: 6
                     }}
                   />
                 ))}
@@ -134,9 +158,16 @@ const AdminDashboard = () => {
                     position={{ lat: selectedBus.lat, lng: selectedBus.lng }}
                     onCloseClick={() => setSelectedBus(null)}
                   >
-                    <div style={{ padding: '5px' }}>
-                      <strong style={{ display: 'block' }}>{selectedBus.name}</strong>
-                      <span style={{ fontSize: '0.8rem' }}>{selectedBus.busNumber}</span>
+                    <div style={{ padding: '10px', minWidth: '150px' }}>
+                      <strong style={{ display: 'block', color: '#FF385C', marginBottom: '5px' }}>{selectedBus.name}</strong>
+                      <div style={{ fontSize: '0.85rem', fontWeight: '700' }}>{selectedBus.busNumber}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '5px' }}>
+                        Status: <span style={{ color: selectedBus.status === 'on_road' ? '#28a745' : '#666' }}>{selectedBus.status.replace('_', ' ')}</span>
+                      </div>
+                      <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #eee' }} />
+                      <div style={{ fontSize: '0.7rem' }}>
+                        Next Stop: {selectedBus.intermediateStops.find(s => !s.passed)?.name || 'N/A'}
+                      </div>
                     </div>
                   </InfoWindow>
                 )}

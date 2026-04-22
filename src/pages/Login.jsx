@@ -12,14 +12,20 @@ const Login = () => {
     e.preventDefault();
     try {
       const loggedUser = await login(email, password);
+      console.log('Login successful:', loggedUser);
+      
       if (loggedUser.role === 'operator') {
+        console.log('Navigating to operator dashboard...');
         navigate('/operator/dashboard');
       } else if (loggedUser.role === 'admin') {
+        console.log('Navigating to admin dashboard...');
         navigate('/admin/dashboard');
       } else {
+        console.log('Navigating to home...');
         navigate('/');
       }
     } catch (err) {
+      console.error('Login error:', err);
       alert(err.response?.data?.error || 'Login failed');
     }
   };

@@ -30,6 +30,7 @@ function App() {
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/tracking/:bookingId" element={<LiveTracking />} />
+            <Route path="/track/:bookingId" element={<LiveTracking />} />
             
             {/* Admin Routes */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />

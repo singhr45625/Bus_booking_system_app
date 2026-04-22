@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
+import { CheckCircle } from 'lucide-react';
 
 const OperatorBoarding = () => {
   const { user } = useContext(AuthContext);
@@ -52,29 +53,34 @@ const OperatorBoarding = () => {
 
       <div className="bus-list">
         {boardings.length === 0 ? <p>No passengers found.</p> : boardings.map(b => {
-          const isPending = b.status !== 'Collected';
+          const isPending = b.remainingBalance > 0;
           return (
-          <div key={b._id} className="bus-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', alignItems: 'center', padding: '1rem' }}>
+          <div key={b._id} className="bus-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', alignItems: 'center', padding: '1.5rem', marginBottom: '1rem', background: 'white', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
             <div>
-              <p style={{ fontWeight: 'bold' }}>{b.user?.username || 'Unknown'}</p>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{b.user?.email || 'N/A'}</p>
+              <p style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{b.passengerDetails?.name || b.user?.username || 'Unknown'}</p>
+              <p style={{ fontSize: '0.85rem', color: '#666' }}>{b.passengerDetails?.phone || b.user?.email || 'N/A'}</p>
             </div>
             <div>
-              <p>Seats: <b>{b.seatNumbers.join(', ')}</b></p>
+              <p style={{ fontSize: '0.9rem' }}>Seats: <b style={{ color: 'var(--primary)' }}>{b.seatNumbers.join(', ')}</b></p>
             </div>
             <div>
-              <p style={{ color: 'var(--success)' }}>Total: ${b.totalPrice}</p>
+              <p style={{ color: '#444', fontSize: '0.9rem' }}>Total: ₹{b.totalPrice.toLocaleString()}</p>
               {isPending && (
-                <p style={{ color: 'var(--danger)', fontWeight: 'bold' }}>Pending: ${b.totalPrice}</p>
+                <p style={{ color: '#d84e55', fontWeight: 'bold' }}>Pending: ₹{b.remainingBalance.toLocaleString()}</p>
               )}
             </div>
             <div style={{ textAlign: 'right' }}>
               {isPending ? (
                 <button onClick={() => markCollected(b._id)} className="btn-primary" style={{ padding: '0.5rem 1rem', background: 'var(--accent)' }}>
-                  Mark Collected
+                  Collect ₹{b.remainingBalance.toLocaleString()}
                 </button>
               ) : (
-                <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>Fully Paid</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                    <span style={{ color: '#15904f', fontWeight: '800', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <CheckCircle size={14} /> FULLY PAID
+                    </span>
+                    <small style={{ color: '#999', fontSize: '0.7rem' }}>Status: {b.status}</small>
+                </div>
               )}
             </div>
           </div>

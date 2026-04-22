@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const { data } = await axios.post('/api/auth/login', { email, password });
+    console.log('AuthContext Login Response:', data);
     localStorage.setItem('userInfo', JSON.stringify(data));
     setUser(data);
     return data;
@@ -35,8 +36,37 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const addWalletMoney = async (amount) => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      const config = {
+        headers: { Authorization: `Bearer ${userInfo?.token}` }
+      };
+      const { data } = await axios.post('/api/auth/wallet/add', { amount }, config);
+      const updatedUser = { ...user, walletBalance: data.walletBalance };
+      localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      return data;
+    } catch (err) {
+      console.error('Add Wallet Money Error:', err.response?.data || err.message);
+      throw err;
+    }
+  };
+
+  const refreshUser = async () => {
+    if (!user) return;
+    try {
+      const { data } = await axios.get('/api/auth/profile');
+      const updatedUser = { ...user, ...data };
+      localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    } catch (err) {
+      console.error('Error refreshing user', err);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, addWalletMoney, refreshUser, loading }}>
       {children}
     </AuthContext.Provider>
   );

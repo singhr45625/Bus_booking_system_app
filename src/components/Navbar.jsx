@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Bus, User, LogOut } from 'lucide-react';
+import { Bus, User, LogOut, Wallet } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -47,14 +47,20 @@ const Navbar = () => {
 
           <div className="nav-actions">
             {user ? (
-              <div className="user-profile">
-                <div className="user-info">
-                  <User size={18} />
-                  <span>{user.username}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <div className="wallet-badge" onClick={() => navigate('/profile')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(21, 144, 79, 0.1)', padding: '6px 14px', borderRadius: '20px', color: '#15904f', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  <Wallet size={16} />
+                  <span>₹{user.walletBalance?.toLocaleString() || 0}</span>
                 </div>
-                <button onClick={handleLogout} className="logout-btn">
-                  <LogOut size={16} />
-                </button>
+                <div className="user-profile">
+                  <div className="user-info">
+                    <User size={18} />
+                    <span>{user.username}</span>
+                  </div>
+                  <button onClick={handleLogout} className="logout-btn">
+                    <LogOut size={16} />
+                  </button>
+                </div>
               </div>
             ) : (
               <>

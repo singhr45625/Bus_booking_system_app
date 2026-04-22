@@ -2,28 +2,34 @@ import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { User, Mail, Shield, Wallet, History, Settings, ChevronRight, LogOut, Camera } from 'lucide-react';
 import axios from 'axios';
+import MockPaymentModal from '../components/MockPaymentModal';
 
 const Profile = () => {
-  const { user, logout, setUser } = useContext(AuthContext);
+  const { user, logout, addWalletMoney, refreshUser } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
-    const fetchBalance = async () => {
-        if (!user?.token) return;
-        try {
-            const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get('/api/users/profile', config);
-            setUser({ ...user, ...data });
-        } catch (err) {
-            console.error('Fetch Profile Error:', err);
-        }
-    };
-    fetchBalance();
+    refreshUser();
   }, []);
+
+  const handlePaymentConfirm = async (amount) => {
+    try {
+      await addWalletMoney(amount);
+      alert(`Success! ₹${amount} has been added to your account.`);
+    } catch (err) {
+      alert('Recharge failed. Please try again.');
+    }
+  };
 
   return (
     <div className="profile-page dash-container">
+      <MockPaymentModal 
+        isOpen={showPaymentModal} 
+        onClose={() => setShowPaymentModal(false)} 
+        onConfirm={handlePaymentConfirm} 
+      />
       <div className="profile-layout">
         <aside className="profile-sidebar">
           <div className="profile-card">
@@ -104,7 +110,13 @@ const Profile = () => {
                     <span>Account Balance</span>
                     <h1>₹{user?.walletBalance?.toLocaleString() || '0'}</h1>
                 </div>
-                <button className="btn-primary" style={{ width: 'auto' }}>Add Credits</button>
+                <button 
+                  className="btn-primary" 
+                  style={{ width: 'auto' }}
+                  onClick={() => setShowPaymentModal(true)}
+                >
+                  Add Credits
+                </button>
               </div>
             </div>
           )}

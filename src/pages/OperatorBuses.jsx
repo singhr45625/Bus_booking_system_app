@@ -1,7 +1,10 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
-import { Bus as BusIcon, Route as RouteIcon, MapPin, DollarSign, Calculator, Info, CheckCircle2 } from 'lucide-react';
+import { Bus as BusIcon, Route as RouteIcon, MapPin, DollarSign, Calculator, Info, CheckCircle2, Trash2 } from 'lucide-react';
+import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
+
+const libraries = ['places'];
 
 const OperatorBuses = () => {
   const { user } = useContext(AuthContext);
@@ -22,6 +25,20 @@ const OperatorBuses = () => {
   const [calculatedDistance, setCalculatedDistance] = useState(null);
   const [previewStops, setPreviewStops] = useState([]);
   const [loadingFare, setLoadingFare] = useState(false);
+  
+  // Manual Stops & Contact
+  const [operatorContact, setOperatorContact] = useState('');
+  const [manualStops, setManualStops] = useState([]);
+  const [autocompleteRefs, setAutocompleteRefs] = useState([]);
+  
+  const sourceAutocompleteRef = useRef(null);
+  const destAutocompleteRef = useRef(null);
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries
+  });
 
   useEffect(() => {
     if (user?.token) fetchBuses();
@@ -88,7 +105,9 @@ const OperatorBuses = () => {
         arrivalTime, 
         price, 
         date: travelDate,
-        dynamicPricing
+        dynamicPricing,
+        operatorContact,
+        intermediateStops: manualStops
       }, config);
       alert('Schedule added successfully!');
       // Clear fields
@@ -96,11 +115,51 @@ const OperatorBuses = () => {
       setDestination('');
       setPrice('');
       setTravelDate('');
+      setOperatorContact('');
+      setManualStops([]);
       setCalculatedDistance(null);
       setPreviewStops([]);
     } catch (err) {
       console.error('Add Schedule Error:', err);
       alert('Error adding schedule: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const handlePlaceChanged = (index) => {
+    const autocomplete = autocompleteRefs[index];
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      if (place.geometry) {
+        const newStops = [...manualStops];
+        newStops[index].name = place.name || place.formatted_address;
+        newStops[index].lat = place.geometry.location.lat();
+        newStops[index].lng = place.geometry.location.lng();
+        setManualStops(newStops);
+      }
+    }
+  };
+
+  const addManualStop = () => {
+    setManualStops([...manualStops, { name: '', lat: '', lng: '', arrivalTime: '' }]);
+    setAutocompleteRefs([...autocompleteRefs, null]);
+  };
+
+  const removeManualStop = (index) => {
+    setManualStops(manualStops.filter((_, i) => i !== index));
+    setAutocompleteRefs(autocompleteRefs.filter((_, i) => i !== index));
+  };
+
+  const onSourceChanged = () => {
+    if (sourceAutocompleteRef.current !== null) {
+      const place = sourceAutocompleteRef.current.getPlace();
+      setSource(place.name || place.formatted_address);
+    }
+  };
+
+  const onDestChanged = () => {
+    if (destAutocompleteRef.current !== null) {
+      const place = destAutocompleteRef.current.getPlace();
+      setDestination(place.name || place.formatted_address);
     }
   };
 
@@ -157,11 +216,29 @@ const OperatorBuses = () => {
             <div className="multi-field">
                 <div className="input-field">
                     <label>From</label>
-                    <input type="text" placeholder="Origin City" value={source} onChange={(e) => setSource(e.target.value)} required />
+                    {isLoaded ? (
+                      <Autocomplete
+                        onLoad={ref => sourceAutocompleteRef.current = ref}
+                        onPlaceChanged={onSourceChanged}
+                      >
+                        <input type="text" placeholder="Origin City" value={source} onChange={(e) => setSource(e.target.value)} required />
+                      </Autocomplete>
+                    ) : (
+                      <input type="text" placeholder="Loading..." disabled />
+                    )}
                 </div>
                 <div className="input-field">
                     <label>To</label>
-                    <input type="text" placeholder="Destination" value={destination} onChange={(e) => setDestination(e.target.value)} required />
+                    {isLoaded ? (
+                      <Autocomplete
+                        onLoad={ref => destAutocompleteRef.current = ref}
+                        onPlaceChanged={onDestChanged}
+                      >
+                        <input type="text" placeholder="Destination" value={destination} onChange={(e) => setDestination(e.target.value)} required />
+                      </Autocomplete>
+                    ) : (
+                      <input type="text" placeholder="Loading..." disabled />
+                    )}
                 </div>
             </div>
 
@@ -236,6 +313,119 @@ const OperatorBuses = () => {
                 <div className="feature-text">
                     <strong>Yield Optimization</strong>
                     <span>Enables surge pricing based on real-time availability.</span>
+                </div>
+            </div>
+
+            <div className="input-field">
+                <label>Operator Contact Number</label>
+                <input 
+                    type="text" 
+                    placeholder="e.g. +91 9876543210" 
+                    value={operatorContact} 
+                    onChange={(e) => setOperatorContact(e.target.value)} 
+                    required 
+                />
+            </div>
+
+            <div className="manual-stops-section">
+                <div className="section-head-sm">
+                    <MapPin size={16} />
+                    <h4>Journey Checkpoints (Stops)</h4>
+                    <button 
+                        type="button" 
+                        className="add-stop-btn"
+                        onClick={addManualStop}
+                    >
+                        + ADD STOP
+                    </button>
+                </div>
+                
+                <div className="manual-stops-list">
+                    {manualStops.map((stop, index) => (
+                        <div key={index} className="stop-entry-card animate-fade">
+                            <div className="stop-main-row">
+                                {isLoaded ? (
+                                    <Autocomplete
+                                        onLoad={(ref) => {
+                                            const newRefs = [...autocompleteRefs];
+                                            newRefs[index] = ref;
+                                            setAutocompleteRefs(newRefs);
+                                        }}
+                                        onPlaceChanged={() => handlePlaceChanged(index)}
+                                    >
+                                        <input 
+                                            type="text" 
+                                            placeholder="Search Stop Location..." 
+                                            value={stop.name} 
+                                            onChange={(e) => {
+                                                const newStops = [...manualStops];
+                                                newStops[index].name = e.target.value;
+                                                setManualStops(newStops);
+                                            }}
+                                            required 
+                                        />
+                                    </Autocomplete>
+                                ) : (
+                                    <input type="text" placeholder="Loading Google Maps..." disabled />
+                                )}
+                                <div className="time-entry-group">
+                                    <input 
+                                        type="time" 
+                                        value={stop.arrivalTime} 
+                                        onChange={(e) => {
+                                            const newStops = [...manualStops];
+                                            newStops[index].arrivalTime = e.target.value;
+                                            setManualStops(newStops);
+                                        }}
+                                        required 
+                                    />
+                                    {stop.arrivalTime && (
+                                        <span className="time-preview">
+                                            {(() => {
+                                                const [h, m] = stop.arrivalTime.split(':');
+                                                const hour = parseInt(h);
+                                                const ampm = hour >= 12 ? 'PM' : 'AM';
+                                                const displayHour = hour % 12 || 12;
+                                                return `${displayHour}:${m} ${ampm}`;
+                                            })()}
+                                        </span>
+                                    )}
+                                </div>
+                                <button 
+                                    type="button" 
+                                    className="remove-stop-btn"
+                                    onClick={() => removeManualStop(index)}
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
+                            <div className="stop-coords-row">
+                                <div className="coord-box">
+                                    <span>Lat:</span>
+                                    <input 
+                                        type="number" 
+                                        readOnly
+                                        value={stop.lat || ''} 
+                                        placeholder="Auto-filled"
+                                        required 
+                                    />
+                                </div>
+                                <div className="coord-box">
+                                    <span>Lng:</span>
+                                    <input 
+                                        type="number" 
+                                        readOnly
+                                        value={stop.lng || ''} 
+                                        placeholder="Auto-filled"
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    {manualStops.length === 0 && (
+                        <p className="empty-stops-msg">No manual stops added. System will auto-generate based on route.</p>
+                    )}
                 </div>
             </div>
 
@@ -332,6 +522,26 @@ const OperatorBuses = () => {
         input:checked + .slider:before { transform: translateX(24px); }
         .slider.round { border-radius: 34px; }
         .slider.round:before { border-radius: 50%; }
+
+        .manual-stops-section { margin-top: 1rem; border-top: 1px solid #edf2f7; padding-top: 2rem; }
+        .section-head-sm { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+        .section-head-sm h4 { margin: 0; font-size: 1rem; font-weight: 800; color: #2d3748; flex-grow: 1; }
+        .add-stop-btn { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; padding: 6px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; cursor: pointer; }
+        
+        .manual-stops-list { display: flex; flex-direction: column; gap: 1rem; }
+        .stop-entry-card { background: #f8fafc; border: 1px solid #edf2f7; padding: 1.2rem; border-radius: 20px; display: flex; flex-direction: column; gap: 0.8rem; }
+        .stop-main-row { display: flex; gap: 0.8rem; align-items: center; }
+        .stop-main-row input { flex-grow: 1; padding: 0.8rem 1.2rem !important; font-size: 0.9rem !important; }
+        .time-entry-group { display: flex; flex-direction: column; align-items: center; min-width: 100px; }
+        .time-preview { font-size: 0.7rem; font-weight: 800; color: #ef4444; margin-top: 4px; }
+        .remove-stop-btn { background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; font-weight: bold; }
+        
+        .stop-coords-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .coord-box { display: flex; align-items: center; gap: 8px; background: white; padding: 5px 12px; border-radius: 10px; border: 1px solid #edf2f7; }
+        .coord-box span { font-size: 0.7rem; font-weight: 800; color: #a0aec0; }
+        .coord-box input { border: none !important; padding: 0 !important; background: transparent !important; box-shadow: none !important; font-size: 0.8rem !important; }
+        
+        .empty-stops-msg { color: #a0aec0; font-size: 0.85rem; text-align: center; padding: 1rem; background: #f8fafc; border-radius: 15px; border: 1px dashed #e2e8f0; }
 
         .spinner-sm { width: 18px; height: 18px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }

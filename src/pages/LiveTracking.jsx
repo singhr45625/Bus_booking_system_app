@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { Bus as BusIcon, Navigation, Clock, ShieldCheck, Phone, ChevronLeft, CheckCircle2, Circle } from 'lucide-react';
 import { useParams, Link } from 'react-router-dom';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import io from 'socket.io-client';
+import { io } from 'socket.io-client';
 import axios from 'axios';
+
+const libraries = ['places'];
 
 // Get API Key from environment variable
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY; 
@@ -19,7 +21,8 @@ const LiveTracking = () => {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries
   });
 
   useEffect(() => {
@@ -38,7 +41,8 @@ const LiveTracking = () => {
           });
           setBearing(data.bus.bearing || 0);
 
-          socketRef.current = io('https://smart-bus-booking-api.onrender.com');
+      // Socket for real-time tracking
+      socketRef.current = io('http://localhost:5000');
           socketRef.current.on(`busUpdate_${data.bus._id}`, (update) => {
             setLocation({ lat: update.lat, lng: update.lng });
             setBearing(update.bearing);
@@ -153,6 +157,19 @@ const LiveTracking = () => {
                 <h3>{bus.name}</h3>
                 <span className="bus-num">{bus.busNumber}</span>
               </div>
+            </div>
+
+            <div className="bus-meta-card animate-slide" style={{ animationDelay: '0.1s' }}>
+              <div className="meta-item">
+                <span className="meta-label">Type</span>
+                <span className="meta-value">{bus.type}</span>
+              </div>
+              {bus.operatorContact && (
+                <div className="meta-item">
+                  <span className="meta-label">Operator Contact</span>
+                  <span className="meta-value" style={{ color: '#ef4444', fontWeight: '800' }}>{bus.operatorContact}</span>
+                </div>
+              )}
             </div>
 
             <div className="live-stations-timeline">

@@ -2,17 +2,20 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Bus, User, Phone, Mail, CreditCard, ChevronRight, CheckCircle, Info } from 'lucide-react';
+import { Bus, User, Phone, Mail, CreditCard, ChevronRight, CheckCircle, Info, Wallet, Download } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
+import TicketTemplate from '../components/TicketTemplate';
 import './Home.css';
 
 const BookingPage = () => {
   const { busId } = useParams();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user, refreshUser } = useContext(AuthContext);
   
   const [bus, setBus] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [step, setStep] = useState(1); // 1: Seats, 2: Details, 3: Payment
+  const [isPartialPayment, setIsPartialPayment] = useState(false);
   const [loading, setLoading] = useState(true);
   
   // Passenger Form
@@ -48,6 +51,7 @@ const BookingPage = () => {
     );
   };
 
+  const [lastBooking, setLastBooking] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleBooking = async () => {
@@ -63,11 +67,17 @@ const BookingPage = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
-      await axios.post('/api/bookings', { 
+      const { data } = await axios.post('/api/bookings', { 
         busId, 
         seatNumbers: selectedSeats,
-        passengerDetails: passengerInfo
+        passengerDetails: passengerInfo,
+        isPartialPayment: isPartialPayment
       }, config);
+      
+      setLastBooking(data);
+      // Refresh wallet balance in context
+      if (typeof refreshUser === 'function') await refreshUser();
+      
       setStep(3); // Success
     } catch (err) {
       alert(err.response?.data?.error || 'Booking failed');
@@ -76,10 +86,29 @@ const BookingPage = () => {
     }
   };
 
+  const handleDownloadPDF = () => {
+    if (!lastBooking) return;
+    const element = document.getElementById(`ticket-success`);
+    const opt = {
+      margin: 0,
+      filename: `SmartBus-Ticket-${lastBooking._id?.slice(-6)}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    html2pdf().from(element).set(opt).save();
+  };
+
   if (loading) return <div className="loading-state"><div className="spinner"></div></div>;
   if (!bus) return <div className="error-state">Bus not found</div>;
 
-  const totalFare = selectedSeats.length * (Number(bus.price) || 0);
+  const calculateSeatPrice = (seatId) => {
+    const isQuick = bus.quickTicketSeats?.includes(seatId);
+    return isQuick ? (bus.price * 1.3) : bus.price;
+  };
+
+  const totalFare = selectedSeats.reduce((acc, seatId) => acc + calculateSeatPrice(seatId), 0);
+  const amountToPayNow = isPartialPayment ? totalFare * 0.2 : totalFare;
 
   return (
     <div className="booking-page animate-fade">
@@ -114,11 +143,12 @@ const BookingPage = () => {
                           return (
                             <div 
                               key={seatId} 
-                              className={`seat ${isBooked ? 'booked' : ''} ${isSelected ? 'selected' : ''}`}
+                              className={`seat ${isBooked ? 'booked' : ''} ${isSelected ? 'selected' : ''} ${bus.quickTicketSeats?.includes(seatId) ? 'quick-ticket' : ''}`}
                               onClick={() => toggleSeat(seatId)}
-                              title={isBooked ? 'Booked' : `Seat ${seatId} - ₹${bus.price}`}
+                              title={isBooked ? 'Booked' : `Seat ${seatId} - ₹${calculateSeatPrice(seatId)}`}
                             >
                               <div className="seat-handle"></div>
+                              {bus.quickTicketSeats?.includes(seatId) && <div className="quick-badge">⚡</div>}
                             </div>
                           );
                         })}
@@ -131,6 +161,7 @@ const BookingPage = () => {
                   <div className="legend-item"><div className="seat available"></div> Available</div>
                   <div className="legend-item"><div className="seat selected"></div> Selected</div>
                   <div className="legend-item"><div className="seat booked"></div> Booked</div>
+                  <div className="legend-item"><div className="seat quick-ticket" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>⚡</div> Quick Ticket (+30%)</div>
                 </div>
               </div>
             )}
@@ -193,9 +224,15 @@ const BookingPage = () => {
                 <div className="payment-mock">
                   <h3><CreditCard size={18} /> Payment Options</h3>
                   <div className="payment-cards">
-                    <div className="p-card active">Credit/Debit Card</div>
-                    <div className="p-card">UPI / GPay</div>
-                    <div className="p-card">Net Banking</div>
+                    <div className={`p-card ${!isPartialPayment ? 'active' : ''}`} onClick={() => setIsPartialPayment(false)}>
+                      Full Payment (100%)
+                      <span className="p-amount">₹{totalFare.toLocaleString()}</span>
+                    </div>
+                    <div className={`p-card ${isPartialPayment ? 'active' : ''}`} onClick={() => setIsPartialPayment(true)}>
+                      Partial Payment (20%)
+                      <span className="p-amount">₹{(totalFare * 0.2).toLocaleString()}</span>
+                      <small style={{ display: 'block', fontSize: '0.7rem', marginTop: '4px' }}>Pay remaining ₹{(totalFare * 0.8).toLocaleString()} on travel date</small>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -203,15 +240,30 @@ const BookingPage = () => {
 
             {step === 3 && (
               <div className="success-view animate-fade">
+                {/* Hidden Ticket Template for PDF Generation */}
+                <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+                  <TicketTemplate booking={lastBooking} id="ticket-success" />
+                </div>
+
                 <CheckCircle size={80} color="#15904f" />
                 <h2>Booking Successful!</h2>
                 <p>Your ticket has been sent to your email and WhatsApp.</p>
                 <div className="ticket-summary">
-                  <div className="row"><span>Booking ID:</span> <strong>#RB{Math.floor(Math.random()*100000)}</strong></div>
+                  <div className="row"><span>Booking ID:</span> <strong>#SB-{lastBooking?._id?.slice(-8).toUpperCase()}</strong></div>
                   <div className="row"><span>Bus:</span> <strong>{bus.name}</strong></div>
                   <div className="row"><span>Seats:</span> <strong>{selectedSeats.join(', ')}</strong></div>
                 </div>
-                <button className="btn-primary" onClick={() => navigate('/my-bookings')}>VIEW MY BOOKINGS</button>
+                
+                <div style={{ display: 'flex', gap: '15px', width: '100%', justifyContent: 'center', marginTop: '1rem' }}>
+                    <button 
+                      className="download-btn" 
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '12px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem' }} 
+                      onClick={handleDownloadPDF}
+                    >
+                        <Download size={18} /> DOWNLOAD TICKET PDF
+                    </button>
+                    <button className="btn-primary" onClick={() => navigate('/my-bookings')}>MY BOOKINGS</button>
+                </div>
               </div>
             )}
           </div>
@@ -229,13 +281,43 @@ const BookingPage = () => {
                   <span>₹25</span>
                 </div>
                 <div className="fare-total">
-                  <span>Total Amount</span>
-                  <span>₹{selectedSeats.length > 0 ? totalFare + 25 : 0}</span>
+                  <span>Amount to Pay Now</span>
+                  <span>₹{selectedSeats.length > 0 ? (amountToPayNow + 25).toLocaleString() : 0}</span>
                 </div>
+                {isPartialPayment && (
+                    <>
+                        <div className="fare-row" style={{ marginTop: '10px', color: '#666', fontSize: '0.85rem' }}>
+                            <span>Remaining Balance</span>
+                            <span>₹{(totalFare * 0.8).toLocaleString()}</span>
+                        </div>
+                        <div className="partial-warning" style={{ background: '#fffbeb', border: '1px solid #fef3c7', padding: '10px', borderRadius: '8px', margin: '15px 0', fontSize: '0.75rem', color: '#92400e', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                            <Info size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
+                            <span>Remaining balance must be paid by travel date. Unpaid seats are released and resold at a premium.</span>
+                        </div>
+                    </>
+                )}
                 
+                <div className="wallet-status" style={{ margin: '20px 0', padding: '15px', borderRadius: '12px', background: (user?.walletBalance < (amountToPayNow + 25)) ? '#fef2f2' : '#f0fdf4', border: '1px solid', borderColor: (user?.walletBalance < (amountToPayNow + 25)) ? '#fee2e2' : '#dcfce7' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Wallet size={16} color={(user?.walletBalance < (amountToPayNow + 25)) ? '#b91c1c' : '#166534'} />
+                      <span style={{ fontSize: '0.8rem', fontWeight: '700', color: (user?.walletBalance < (amountToPayNow + 25)) ? '#b91c1c' : '#166534' }}>WALLET BALANCE</span>
+                    </div>
+                    <strong style={{ color: (user?.walletBalance < (amountToPayNow + 25)) ? '#b91c1c' : '#166534' }}>₹{user?.walletBalance?.toLocaleString() || 0}</strong>
+                  </div>
+                  {user?.walletBalance < (amountToPayNow + 25) && (
+                    <button 
+                      onClick={() => navigate('/profile')} 
+                      style={{ marginTop: '10px', width: '100%', padding: '8px', borderRadius: '8px', background: '#b91c1c', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer', fontSize: '0.75rem' }}
+                    >
+                      INSUFFICIENT BALANCE - RECHARGE
+                    </button>
+                  )}
+                </div>
+
                 <div className="booking-info">
                   <Info size={16} />
-                  <p>By clicking proceed/pay, you agree to the terms and privacy policy.</p>
+                  <p>Payment will be deducted from your SmartBus Wallet. Ensure sufficient balance before proceeding.</p>
                 </div>
 
                 {step === 1 ? (
@@ -304,6 +386,9 @@ const BookingPage = () => {
         .seat.booked .seat-handle { border-color: #eee; }
         .seat.selected { border-color: var(--accent); background: var(--accent); }
         .seat.selected .seat-handle { border-color: var(--accent); }
+        .seat.quick-ticket { border-color: #f59e0b; }
+        .seat.quick-ticket .seat-handle { border-color: #f59e0b; }
+        .quick-badge { position: absolute; font-size: 10px; bottom: -2px; right: -2px; background: #f59e0b; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid white; }
         .aisle { width: 20px; }
 
         .seat-legend { display: flex; justify-content: center; gap: 20px; margin-top: 3rem; font-size: 0.85rem; color: var(--text-muted); }
@@ -318,8 +403,9 @@ const BookingPage = () => {
         .form-group input:focus { border-color: var(--primary); }
 
         .payment-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
-        .p-card { border: 1px solid var(--border-color); padding: 1rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .p-card { border: 1px solid var(--border-color); padding: 1rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; }
         .p-card.active { border-color: var(--primary); background: #fff3f3; color: var(--primary); }
+        .p-amount { font-size: 1.2rem; font-weight: 800; margin-top: 5px; }
 
         /* Sidebar Styling */
         .fare-row { display: flex; justify-content: space-between; margin-bottom: 1rem; color: var(--text-main); }

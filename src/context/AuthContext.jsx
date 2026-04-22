@@ -54,12 +54,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshUser = async () => {
-    if (!user) return;
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    if (!userInfo || !userInfo.token) return;
+
     try {
-      const { data } = await axios.get('/api/auth/profile');
-      const updatedUser = { ...user, ...data };
+      // Small delay to allow DB to finish the transaction
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+      const { data } = await axios.get('/api/auth/profile', config);
+      
+      // Merge with token which is not returned by profile endpoint
+      const updatedUser = { ...userInfo, ...data };
       localStorage.setItem('userInfo', JSON.stringify(updatedUser));
       setUser(updatedUser);
+      console.log('Wallet Refreshed:', data.walletBalance);
     } catch (err) {
       console.error('Error refreshing user', err);
     }

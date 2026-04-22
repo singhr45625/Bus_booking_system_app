@@ -70,8 +70,13 @@ const LiveTracking = () => {
   // Calculate Next Stop
   const nextStop = stops.find(s => !s.passed);
 
-  if (loading) return <div className="loading-state">Loading Tracking Data...</div>;
-  if (!bus) return <div className="error-state">Bus data not found for this booking.</div>;
+  if (loading) {
+    return (
+      <div className="spinner-container">
+        <div className="spinner"></div>
+      </div>
+    );
+  }if (!bus) return <div className="error-state">Bus data not found for this booking.</div>;
 
   return (
     <div className="tracking-page animate-fade">

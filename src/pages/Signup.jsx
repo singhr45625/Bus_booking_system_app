@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
@@ -15,9 +16,10 @@ const Signup = () => {
     e.preventDefault();
     try {
       await signup(username, email, password, role, companyName);
+      toast.success('Account created successfully!');
       navigate('/');
     } catch (err) {
-      alert(err.response?.data?.error || 'Signup failed');
+      toast.error(err.response?.data?.error || 'Signup failed');
     }
   };
 

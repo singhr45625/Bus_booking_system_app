@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,21 +13,18 @@ const Login = () => {
     e.preventDefault();
     try {
       const loggedUser = await login(email, password);
-      console.log('Login successful:', loggedUser);
+      toast.success('Welcome back!');
       
       if (loggedUser.role === 'operator') {
-        console.log('Navigating to operator dashboard...');
         navigate('/operator/dashboard');
       } else if (loggedUser.role === 'admin') {
-        console.log('Navigating to admin dashboard...');
         navigate('/admin/dashboard');
       } else {
-        console.log('Navigating to home...');
         navigate('/');
       }
     } catch (err) {
       console.error('Login error:', err);
-      alert(err.response?.data?.error || 'Login failed');
+      toast.error(err.response?.data?.error || 'Login failed. Please check your credentials.');
     }
   };
 

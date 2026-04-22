@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { Bus, User, Phone, Mail, CreditCard, ChevronRight, CheckCircle, Info, Wallet, Download } from 'lucide-react';
@@ -57,7 +58,7 @@ const BookingPage = () => {
   const handleBooking = async () => {
     // Validation
     if (!passengerInfo.name || !passengerInfo.age || !passengerInfo.phone || !passengerInfo.email) {
-      alert('Please fill in all passenger details');
+      toast.error('Please fill in all passenger details');
       return;
     }
 
@@ -75,12 +76,13 @@ const BookingPage = () => {
       }, config);
       
       setLastBooking(data);
+      toast.success('Tickets confirmed!');
       // Refresh wallet balance in context
       if (typeof refreshUser === 'function') await refreshUser();
       
       setStep(3); // Success
     } catch (err) {
-      alert(err.response?.data?.error || 'Booking failed');
+      toast.error(err.response?.data?.error || 'Booking failed. Check your wallet balance.');
     } finally {
       setIsProcessing(false);
     }
@@ -99,7 +101,13 @@ const BookingPage = () => {
     html2pdf().from(element).set(opt).save();
   };
 
-  if (loading) return <div className="loading-state"><div className="spinner"></div></div>;
+  if (loading) {
+    return (
+      <div className="spinner-container">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
   if (!bus) return <div className="error-state">Bus not found</div>;
 
   const calculateSeatPrice = (seatId) => {

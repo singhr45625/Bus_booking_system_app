@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import { Bus as BusIcon, Route as RouteIcon, MapPin, DollarSign, Calculator, Info, CheckCircle2, Trash2 } from 'lucide-react';
 import { useJsApiLoader, Autocomplete } from '@react-google-maps/api';
+import toast from 'react-hot-toast';
 
 const libraries = ['places'];
 
@@ -82,10 +83,10 @@ const OperatorBuses = () => {
       setBusName('');
       setTotalSeats(40);
       fetchBuses();
-      alert('Bus added successfully!');
+      toast.success('Vehicle added to inventory!');
     } catch (err) {
       console.error('Add Bus Error:', err);
-      alert('Error adding bus: ' + (err.response?.data?.error || err.message));
+      toast.error('Failed to add vehicle');
     }
   };
 
@@ -109,7 +110,7 @@ const OperatorBuses = () => {
         operatorContact,
         intermediateStops: manualStops
       }, config);
-      alert('Schedule added successfully!');
+      toast.success('Journey published live!');
       // Clear fields
       setSource('');
       setDestination('');
@@ -121,7 +122,7 @@ const OperatorBuses = () => {
       setPreviewStops([]);
     } catch (err) {
       console.error('Add Schedule Error:', err);
-      alert('Error adding schedule: ' + (err.response?.data?.error || err.message));
+      toast.error('Failed to publish journey');
     }
   };
 

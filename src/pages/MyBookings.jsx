@@ -118,20 +118,22 @@ const MyBookings = () => {
                   <Ticket size={14} /> {b.seatNumbers?.join(', ')}
                 </div>
                 <div className="price-tag" style={{ fontSize: '1.2rem', fontWeight: '800' }}>₹{b.totalPrice.toLocaleString()}</div>
-                <span className={`status-badge ${b.status?.replace(' ', '-').toLowerCase()}`} style={{ fontSize: '0.75rem', fontWeight: '800', padding: '4px 10px', borderRadius: '20px', background: b.status === 'Confirmed' ? '#eefaf3' : (b.status === 'Partially Paid' ? '#fffbeb' : '#fef2f2'), color: b.status === 'Confirmed' ? '#15904f' : (b.status === 'Partially Paid' ? '#b45309' : '#b91c1c') }}>
+                <span className={`status-badge ${b.status?.replace(' ', '-').toLowerCase()}`} style={{ fontSize: '0.75rem', fontWeight: '800', padding: '4px 10px', borderRadius: '20px', background: b.status === 'Confirmed' ? '#eefaf3' : (b.status === 'Partially Paid' ? '#fffbeb' : (b.status === 'Boarded' ? '#eff6ff' : '#fef2f2')), color: b.status === 'Confirmed' ? '#15904f' : (b.status === 'Partially Paid' ? '#b45309' : (b.status === 'Boarded' ? '#2563eb' : '#b91c1c')) }}>
                     {b.status}
                 </span>
                 
                     <div style={{ marginTop: '10px', textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
                         <small style={{ display: 'block', color: '#b45309', fontWeight: '700' }}>Balance: ₹{b.remainingBalance.toLocaleString()}</small>
                         <div style={{ display: 'flex', gap: '8px' }}>
-                            <button 
-                                className="btn-primary" 
-                                style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', background: '#b45309' }}
-                                onClick={() => openModal(b, 'cancel')}
-                            >
-                                CANCEL
-                            </button>
+                            {b.status !== 'Boarded' && (
+                              <button 
+                                  className="btn-primary" 
+                                  style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', background: '#b45309' }}
+                                  onClick={() => openModal(b, 'cancel')}
+                              >
+                                  CANCEL
+                              </button>
+                            )}
                             <button 
                                 className="btn-primary" 
                                 style={{ padding: '0.4rem 1rem', fontSize: '0.8rem' }}
@@ -146,7 +148,7 @@ const MyBookings = () => {
                     </div>
                 )}
 
-                {b.status === 'Confirmed' && (
+                {b.status === 'Confirmed' && b.status !== 'Boarded' && (
                   <button 
                       className="btn-primary" 
                       style={{ padding: '0.4rem 1rem', fontSize: '0.8rem', background: '#fef2f2', color: '#b91c1c', border: '1px solid #fee2e2', marginTop: '10px' }}

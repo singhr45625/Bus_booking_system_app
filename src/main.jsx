@@ -5,8 +5,8 @@ import './App.css'
 import { AuthProvider } from './context/AuthContext'
 import axios from 'axios'
 
-// Rely on Vite proxy for /api requests (configured in vite.config.js)
-// axios.defaults.baseURL = 'http://localhost:5000';
+// Use Production API URL from environment variables
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Set up global axios interceptor to automatically attach JWT token to all requests
 axios.interceptors.request.use((config) => {

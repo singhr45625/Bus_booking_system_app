@@ -437,11 +437,11 @@ const OperatorBuses = () => {
       </div>
 
       <style>{`
-        .operator-dashboard { padding: 9rem 1rem 4rem; max-width: 1200px; margin: 0 auto; }
-        .badge-featured { background: #fee2e2; color: #ef4444; font-size: 0.75rem; font-weight: 900; padding: 6px 16px; border-radius: 99px; display: inline-block; margin-bottom: 1.5rem; letter-spacing: 1.5px; border: 1px solid #fecaca; }
-        .dashboard-header { text-align: center; margin-bottom: 5rem; position: relative; }
-        .dashboard-header h1 { font-size: 3.5rem; font-weight: 900; color: #1a202c; letter-spacing: -2px; margin-bottom: 1rem; line-height: 1; }
-        .dashboard-header p { color: #718096; font-size: 1.25rem; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .operator-dashboard { padding: 4rem 1rem 4rem; max-width: 1200px; margin: 0 auto; }
+        .badge-featured { background: #fee2e2; color: #ef4444; font-size: 0.7rem; font-weight: 900; padding: 4px 12px; border-radius: 99px; display: inline-block; margin-bottom: 1rem; letter-spacing: 1.5px; border: 1px solid #fecaca; }
+        .dashboard-header { text-align: center; margin-bottom: 3rem; position: relative; }
+        .dashboard-header h1 { font-size: 2.8rem; font-weight: 900; color: #1a202c; letter-spacing: -1.5px; margin-bottom: 0.8rem; line-height: 1.1; }
+        .dashboard-header p { color: #718096; font-size: 1.1rem; max-width: 600px; margin: 0 auto; line-height: 1.5; }
 
         .dashboard-grid { display: grid; grid-template-columns: 400px 1fr; gap: 2.5rem; }
         @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
@@ -544,8 +544,25 @@ const OperatorBuses = () => {
         
         .empty-stops-msg { color: #a0aec0; font-size: 0.85rem; text-align: center; padding: 1rem; background: #f8fafc; border-radius: 15px; border: 1px dashed #e2e8f0; }
 
-        .spinner-sm { width: 18px; height: 18px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 992px) {
+          .operator-dashboard { padding-top: 3rem; }
+          .dashboard-header h1 { font-size: 2.2rem; }
+          .card { padding: 2rem; }
+        }
+
+        @media (max-width: 768px) {
+          .operator-dashboard { padding-top: 2rem; }
+          .dashboard-header { margin-bottom: 2rem; }
+          .dashboard-header h1 { font-size: 1.8rem; }
+          .dashboard-header p { font-size: 0.95rem; }
+          .multi-field { grid-template-columns: 1fr; }
+          .stop-main-row { flex-direction: column; align-items: stretch; }
+          .time-entry-group { width: 100%; }
+          .stop-coords-row { grid-template-columns: 1fr; }
+          .action-btn { width: 100%; }
+        }
       `}</style>
     </div>
   );

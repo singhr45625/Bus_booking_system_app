@@ -1,10 +1,12 @@
 import { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { User, Mail, Shield, Wallet, History, Settings, ChevronRight, LogOut, Camera } from 'lucide-react';
+import { User, Mail, Shield, Wallet, History, Settings, ChevronRight, LogOut, Camera, ChevronLeft } from 'lucide-react';
 import axios from 'axios';
 import MockPaymentModal from '../components/MockPaymentModal';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { user, logout, addWalletMoney, refreshUser } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
@@ -25,6 +27,12 @@ const Profile = () => {
 
   return (
     <div className="profile-page dash-container">
+      <button 
+        onClick={() => navigate('/')} 
+        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '8px 16px', color: '#666', fontWeight: '700', cursor: 'pointer', marginBottom: '1.5rem', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}
+      >
+        <ChevronLeft size={18} /> BACK
+      </button>
       <MockPaymentModal 
         isOpen={showPaymentModal} 
         onClose={() => setShowPaymentModal(false)} 
@@ -124,7 +132,7 @@ const Profile = () => {
       </div>
 
       <style>{`
-        .profile-page { padding: 4rem 1rem; }
+        .profile-page { padding: 2rem 1rem; }
         .profile-layout { display: grid; grid-template-columns: 280px 1fr; gap: 3rem; }
         
         .profile-sidebar { display: flex; flex-direction: column; gap: 2rem; }
@@ -157,6 +165,21 @@ const Profile = () => {
         .profile-balance-card { background: var(--secondary); color: white; padding: 3rem; border-radius: 30px; display: flex; justify-content: space-between; align-items: center; }
         .balance-info span { font-size: 0.9rem; opacity: 0.7; font-weight: 600; }
         .balance-info h1 { font-size: 3.5rem; font-weight: 900; margin: 0.5rem 0 0 0; letter-spacing: -2px; }
+
+        @media (max-width: 992px) {
+          .profile-layout { grid-template-columns: 1fr; gap: 2rem; }
+          .profile-nav { flex-direction: row; overflow-x: auto; padding: 1rem; }
+          .profile-nav button { white-space: nowrap; }
+          .profile-sidebar { flex-direction: row; align-items: center; gap: 2rem; }
+          .profile-card { flex: 1; padding: 1.5rem; }
+        }
+
+        @media (max-width: 768px) {
+          .profile-sidebar { flex-direction: column; }
+          .profile-balance-card { flex-direction: column; gap: 2rem; text-align: center; padding: 2rem; }
+          .balance-info h1 { font-size: 2.5rem; }
+          .quick-stats-row { flex-direction: column; }
+        }
       `}</style>
     </div>
   );

@@ -1,15 +1,16 @@
 import { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import io from 'socket.io-client';
-import { Bus, Map as MapIcon, Users, Building, Wallet, Activity } from 'lucide-react';
+import { Bus, Map as MapIcon, Users, Building, Wallet, Activity, ChevronLeft } from 'lucide-react';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const libraries = ['places'];
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [stats, setStats] = useState(null);
   const [fleet, setFleet] = useState([]);
@@ -54,6 +55,13 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dash-page">
       <div className="nav-container" style={{ padding: '2rem' }}>
+        <button 
+          className="back-btn"
+          onClick={() => navigate('/')} 
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '8px 16px', color: '#666', fontWeight: '700', cursor: 'pointer', marginBottom: '1.5rem', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}
+        >
+          <ChevronLeft size={18} /> BACK TO HOME
+        </button>
         <header className="dash-header">
           <div>
             <h1>Admin Control Center</h1>
@@ -265,6 +273,34 @@ const AdminDashboard = () => {
         .health-item .status { font-size: 0.75rem; font-weight: 800; color: #00a699; text-transform: uppercase; }
         
         @media (max-width: 1024px) { .dashboard-sections { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+          .nav-container { padding: 1rem !important; }
+          .dash-header { flex-direction: column; align-items: stretch; text-align: center; gap: 1rem; }
+          .dash-header h1 { font-size: 1.5rem; }
+          .dash-header p { font-size: 0.9rem; }
+          .dash-header .btn-primary { width: 100%; justify-content: center; padding: 1rem; }
+          
+          .dash-grid { grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+          .dash-card { padding: 1rem; border-radius: 12px; }
+          .dash-card p { font-size: 1.4rem; }
+          .dash-card h3 { font-size: 0.65rem; }
+          .card-icon { width: 32px; height: 32px; margin-bottom: 0.5rem; }
+          
+          .card { padding: 1.2rem; border-radius: 12px; }
+          .section-header h3 { font-size: 1.1rem; }
+          .map-wrapper { height: 250px; border-radius: 12px; }
+          
+          .activity-item { padding: 0.8rem; gap: 0.8rem; }
+          .user-avatar { width: 32px; height: 32px; font-size: 0.8rem; }
+          .user-name { font-size: 0.85rem; }
+          .activity-amount { font-size: 0.9rem; }
+          
+          .health-item { padding: 0.6rem; gap: 8px; }
+          .health-item span { font-size: 0.8rem; }
+        }
+        @media (max-width: 480px) {
+          .dash-grid { grid-template-columns: 1fr; }
+        }
       `}</style>
     </div>
   );

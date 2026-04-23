@@ -1,9 +1,11 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
 
 const OperatorDashboard = () => {
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [stats, setStats] = useState(null);
 
@@ -25,6 +27,12 @@ const OperatorDashboard = () => {
 
   return (
     <div className="container" style={{ padding: '2rem' }}>
+      <button 
+        onClick={() => navigate('/')} 
+        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '8px 16px', color: '#666', fontWeight: '700', cursor: 'pointer', marginBottom: '1.5rem', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}
+      >
+        <ChevronLeft size={18} /> BACK TO HOME
+      </button>
       <h2>Operator Dashboard</h2>
       
       {stats ? (
@@ -127,6 +135,11 @@ const OperatorDashboard = () => {
         .loading-placeholder { text-align: center; padding: 3rem; color: var(--text-muted); }
         
         @media (max-width: 1024px) { .dashboard-sections { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+          .container { padding: 1rem !important; }
+          .dash-card p { font-size: 1.8rem; }
+          .dash-grid { grid-template-columns: 1fr; }
+        }
       `}</style>
     </div>
   );

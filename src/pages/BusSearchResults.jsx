@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Bus as BusIcon, Filter, Clock, Star, ArrowRight, ShieldCheck, MapPin, ChevronDown } from 'lucide-react';
+import { Bus as BusIcon, Filter, Clock, Star, ArrowRight, ShieldCheck, MapPin, ChevronDown, ChevronLeft } from 'lucide-react';
 import './Home.css'; // Reusing Home.css for common styles
 
 const BusSearchResults = () => {
@@ -76,7 +76,13 @@ const BusSearchResults = () => {
     <div className="search-results-page animate-fade">
       {/* Search Result Header */}
       <div className="results-top-bar glass-effect">
-        <div className="nav-container">
+        <div className="nav-container" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <button 
+            onClick={() => navigate('/')} 
+            style={{ background: '#f8f9fa', border: '1px solid #ddd', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyCenter: 'center', cursor: 'pointer', color: '#666' }}
+          >
+            <ChevronLeft size={20} />
+          </button>
           <div className="search-info">
             <span className="route">{query.get('source')} <ArrowRight size={16} /> {query.get('destination')}</span>
             <span className="date">| {query.get('date') || 'Any Date'}</span>
@@ -150,7 +156,7 @@ const BusSearchResults = () => {
 
           {loading ? (
             <div className="loading-state">
-              <div className="spinner"></div>
+              <div className="spinner-md"></div>
               <p>Fetching best buses for you...</p>
             </div>
           ) : (
@@ -204,11 +210,10 @@ const BusSearchResults = () => {
                     <div className="actions">
                       <span className="seats-left">{bus.totalSeats - (bus.bookedSeats?.length || 0)} Seats available</span>
                       <button 
-                        className={`view-seats-btn ${user?.role === 'operator' || user?.role === 'admin' ? 'disabled-btn' : ''}`} 
-                        onClick={() => handleSelectBus(bus._id)}
-                        disabled={user?.role === 'operator' || user?.role === 'admin'}
+                        className="view-seats-btn" 
+                        onClick={() => navigate(`/booking/${bus._id}`)}
                       >
-                        {user?.role === 'operator' || user?.role === 'admin' ? 'READ ONLY' : 'VIEW SEATS'}
+                        {user?.role === 'operator' || user?.role === 'admin' ? 'PREVIEW LAYOUT' : 'VIEW SEATS'}
                       </button>
                     </div>
                   </div>
@@ -334,6 +339,38 @@ const BusSearchResults = () => {
         .loading-state { text-align: center; padding: 5rem 0; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; margin: 0 auto 1rem; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 992px) {
+          .results-content { grid-template-columns: 1fr; }
+          .filters-sidebar { display: none; }
+          .card-top { grid-template-columns: 1fr 1fr; }
+          .results-top-bar { height: auto; padding: 1rem 0; top: 72px; }
+          .results-top-bar .nav-container { flex-direction: column; gap: 1rem; align-items: flex-start; }
+          .search-info { width: 100%; justify-content: space-between; }
+          .modify-search-btn { width: 100%; margin-top: 0.5rem; }
+        }
+
+        @media (max-width: 768px) {
+          .card-top { grid-template-columns: 1fr; gap: 1.5rem; padding: 1rem; }
+          .operator-details { text-align: center; }
+          .badges { justify-content: center; }
+          .timing-row { justify-content: space-around; width: 100%; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 1rem 0; }
+          .rating-col { border: none; padding: 0.5rem 0; flex-direction: row; justify-content: center; gap: 15px; width: 100%; }
+          .price-col { align-items: center; padding: 1rem 0; background: #fff8f8; border-radius: 8px; width: 100%; }
+          .card-bottom { flex-direction: column; gap: 1rem; align-items: center; text-align: center; padding: 1.5rem 1rem; }
+          .amenities-row { flex-wrap: wrap; justify-content: center; gap: 10px; }
+          .actions { width: 100%; flex-direction: column; gap: 1rem; }
+          .view-seats-btn { width: 100%; }
+          
+          .listing-stats { flex-direction: column; gap: 1rem; align-items: flex-start; }
+          .sort-options { width: 100%; overflow-x: auto; padding-bottom: 5px; }
+        }
+
+        @media (max-width: 480px) {
+          .search-info .route { font-size: 0.85rem; flex-wrap: wrap; }
+          .time-col .time { font-size: 1rem; }
+          .price-col .price { font-size: 1.2rem; }
+        }
       `}</style>
     </div>
   );

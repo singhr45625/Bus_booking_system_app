@@ -265,6 +265,22 @@ const LiveTracking = () => {
         .call-btn { background: white; border: 1px solid #ddd; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary); }
 
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(21, 144, 79, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(21, 144, 79, 0); } 100% { box-shadow: 0 0 0 0 rgba(21, 144, 79, 0); } }
+
+        @media (max-width: 992px) {
+          .tracking-layout { grid-template-columns: 1fr; height: auto; }
+          .map-section { height: 400px; }
+          .details-sidebar { padding: 1.5rem; }
+        }
+
+        @media (max-width: 768px) {
+          .tracking-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+          .header-main { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+          .header-main h1 { font-size: 1.5rem; }
+          .quick-stats { bottom: 1rem; left: 1rem; right: 1rem; }
+          .stat-card { flex: 1; min-width: 0; padding: 0.6rem; }
+          .stat-card .value { font-size: 0.8rem; }
+          .back-btn { width: 100%; justify-content: center; }
+        }
       `}</style>
     </div>
   );

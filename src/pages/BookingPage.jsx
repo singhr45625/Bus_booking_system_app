@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Bus, User, Phone, Mail, CreditCard, ChevronRight, CheckCircle, Info, Wallet, Download } from 'lucide-react';
+import { Bus, User, Phone, Mail, CreditCard, ChevronRight, CheckCircle, Info, Wallet, Download, ChevronLeft } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import TicketTemplate from '../components/TicketTemplate';
 import './Home.css';
@@ -12,13 +12,13 @@ const BookingPage = () => {
   const { busId } = useParams();
   const navigate = useNavigate();
   const { user, refreshUser } = useContext(AuthContext);
-  
+
   const [bus, setBus] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [step, setStep] = useState(1); // 1: Seats, 2: Details, 3: Payment
   const [isPartialPayment, setIsPartialPayment] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   // Passenger Form
   const [passengerInfo, setPassengerInfo] = useState({
     name: user?.username || '',
@@ -44,10 +44,10 @@ const BookingPage = () => {
 
   const toggleSeat = (seatId) => {
     if (bus.bookedSeats.includes(seatId)) return;
-    
-    setSelectedSeats(prev => 
-      prev.includes(seatId) 
-        ? prev.filter(s => s !== seatId) 
+
+    setSelectedSeats(prev =>
+      prev.includes(seatId)
+        ? prev.filter(s => s !== seatId)
         : [...prev, seatId]
     );
   };
@@ -68,18 +68,18 @@ const BookingPage = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
-      const { data } = await axios.post('/api/bookings', { 
-        busId, 
+      const { data } = await axios.post('/api/bookings', {
+        busId,
         seatNumbers: selectedSeats,
         passengerDetails: passengerInfo,
         isPartialPayment: isPartialPayment
       }, config);
-      
+
       setLastBooking(data);
       toast.success('Tickets confirmed!');
       // Refresh wallet balance in context
       if (typeof refreshUser === 'function') await refreshUser();
-      
+
       setStep(3); // Success
     } catch (err) {
       toast.error(err.response?.data?.error || 'Booking failed. Check your wallet balance.');
@@ -121,6 +121,20 @@ const BookingPage = () => {
   return (
     <div className="booking-page animate-fade">
       <div className="nav-container">
+        <button
+          onClick={() => navigate(-1)}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '8px 16px', color: '#666', fontWeight: '700', cursor: 'pointer', marginBottom: '1.5rem', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}
+        >
+          <ChevronLeft size={18} /> BACK
+        </button>
+
+        {(user?.role === 'admin' || user?.role === 'operator') && (
+          <div className="role-notice" style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '1rem', borderRadius: '12px', color: '#92400e', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', fontWeight: '600' }}>
+            <Info size={20} />
+            You are viewing this layout as an {user.role}. Booking is restricted to customer accounts.
+          </div>
+        )}
+
         {/* Progress Stepper */}
         <div className="booking-stepper">
           <div className={`step ${step >= 1 ? 'active' : ''}`}><span>1</span> SELECT SEATS</div>
@@ -149,8 +163,8 @@ const BookingPage = () => {
                           const isBooked = bus.bookedSeats.includes(seatId);
                           const isSelected = selectedSeats.includes(seatId);
                           return (
-                            <div 
-                              key={seatId} 
+                            <div
+                              key={seatId}
                               className={`seat ${isBooked ? 'booked' : ''} ${isSelected ? 'selected' : ''} ${bus.quickTicketSeats?.includes(seatId) ? 'quick-ticket' : ''}`}
                               onClick={() => toggleSeat(seatId)}
                               title={isBooked ? 'Booked' : `Seat ${seatId} - ₹${calculateSeatPrice(seatId)}`}
@@ -164,7 +178,7 @@ const BookingPage = () => {
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="seat-legend">
                   <div className="legend-item"><div className="seat available"></div> Available</div>
                   <div className="legend-item"><div className="seat selected"></div> Selected</div>
@@ -180,28 +194,28 @@ const BookingPage = () => {
                 <div className="details-form">
                   <div className="form-group">
                     <label><User size={16} /> Full Name</label>
-                    <input 
-                      type="text" 
-                      value={passengerInfo.name} 
-                      onChange={e => setPassengerInfo({...passengerInfo, name: e.target.value})}
+                    <input
+                      type="text"
+                      value={passengerInfo.name}
+                      onChange={e => setPassengerInfo({ ...passengerInfo, name: e.target.value })}
                       placeholder="As per ID card"
                     />
                   </div>
                   <div className="form-row">
                     <div className="form-group">
                       <label>Age</label>
-                      <input 
-                        type="number" 
-                        placeholder="Years" 
-                        value={passengerInfo.age} 
-                        onChange={e => setPassengerInfo({...passengerInfo, age: e.target.value})}
+                      <input
+                        type="number"
+                        placeholder="Years"
+                        value={passengerInfo.age}
+                        onChange={e => setPassengerInfo({ ...passengerInfo, age: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
                       <label>Gender</label>
-                      <select 
-                        value={passengerInfo.gender} 
-                        onChange={e => setPassengerInfo({...passengerInfo, gender: e.target.value})}
+                      <select
+                        value={passengerInfo.gender}
+                        onChange={e => setPassengerInfo({ ...passengerInfo, gender: e.target.value })}
                       >
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -211,20 +225,20 @@ const BookingPage = () => {
                   </div>
                   <div className="form-group">
                     <label><Phone size={16} /> Mobile Number</label>
-                    <input 
-                      type="text" 
-                      placeholder="+91 00000 00000" 
-                      value={passengerInfo.phone} 
-                      onChange={e => setPassengerInfo({...passengerInfo, phone: e.target.value})}
+                    <input
+                      type="text"
+                      placeholder="+91 00000 00000"
+                      value={passengerInfo.phone}
+                      onChange={e => setPassengerInfo({ ...passengerInfo, phone: e.target.value })}
                     />
                   </div>
                   <div className="form-group">
                     <label><Mail size={16} /> Email Address</label>
-                    <input 
-                      type="email" 
-                      placeholder="ticket@example.com" 
-                      value={passengerInfo.email} 
-                      onChange={e => setPassengerInfo({...passengerInfo, email: e.target.value})}
+                    <input
+                      type="email"
+                      placeholder="ticket@example.com"
+                      value={passengerInfo.email}
+                      onChange={e => setPassengerInfo({ ...passengerInfo, email: e.target.value })}
                     />
                   </div>
                 </div>
@@ -261,16 +275,16 @@ const BookingPage = () => {
                   <div className="row"><span>Bus:</span> <strong>{bus.name}</strong></div>
                   <div className="row"><span>Seats:</span> <strong>{selectedSeats.join(', ')}</strong></div>
                 </div>
-                
+
                 <div style={{ display: 'flex', gap: '15px', width: '100%', justifyContent: 'center', marginTop: '1rem' }}>
-                    <button 
-                      className="download-btn" 
-                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '12px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem' }} 
-                      onClick={handleDownloadPDF}
-                    >
-                        <Download size={18} /> DOWNLOAD TICKET PDF
-                    </button>
-                    <button className="btn-primary" onClick={() => navigate('/my-bookings')}>MY BOOKINGS</button>
+                  <button
+                    className="download-btn"
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '12px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem' }}
+                    onClick={handleDownloadPDF}
+                  >
+                    <Download size={18} /> DOWNLOAD TICKET PDF
+                  </button>
+                  <button className="btn-primary" onClick={() => navigate('/my-bookings')}>MY BOOKINGS</button>
                 </div>
               </div>
             )}
@@ -293,18 +307,18 @@ const BookingPage = () => {
                   <span>₹{selectedSeats.length > 0 ? (amountToPayNow + 25).toLocaleString() : 0}</span>
                 </div>
                 {isPartialPayment && (
-                    <>
-                        <div className="fare-row" style={{ marginTop: '10px', color: '#666', fontSize: '0.85rem' }}>
-                            <span>Remaining Balance</span>
-                            <span>₹{(totalFare * 0.8).toLocaleString()}</span>
-                        </div>
-                        <div className="partial-warning" style={{ background: '#fffbeb', border: '1px solid #fef3c7', padding: '10px', borderRadius: '8px', margin: '15px 0', fontSize: '0.75rem', color: '#92400e', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                            <Info size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
-                            <span>Remaining balance must be paid by travel date. Unpaid seats are released and resold at a premium.</span>
-                        </div>
-                    </>
+                  <>
+                    <div className="fare-row" style={{ marginTop: '10px', color: '#666', fontSize: '0.85rem' }}>
+                      <span>Remaining Balance</span>
+                      <span>₹{(totalFare * 0.8).toLocaleString()}</span>
+                    </div>
+                    <div className="partial-warning" style={{ background: '#fffbeb', border: '1px solid #fef3c7', padding: '10px', borderRadius: '8px', margin: '15px 0', fontSize: '0.75rem', color: '#92400e', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                      <Info size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
+                      <span>Remaining balance must be paid by travel date. Unpaid seats are released and resold at a premium.</span>
+                    </div>
+                  </>
                 )}
-                
+
                 <div className="wallet-status" style={{ margin: '20px 0', padding: '15px', borderRadius: '12px', background: (user?.walletBalance < (amountToPayNow + 25)) ? '#fef2f2' : '#f0fdf4', border: '1px solid', borderColor: (user?.walletBalance < (amountToPayNow + 25)) ? '#fee2e2' : '#dcfce7' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -314,8 +328,8 @@ const BookingPage = () => {
                     <strong style={{ color: (user?.walletBalance < (amountToPayNow + 25)) ? '#b91c1c' : '#166534' }}>₹{user?.walletBalance?.toLocaleString() || 0}</strong>
                   </div>
                   {user?.walletBalance < (amountToPayNow + 25) && (
-                    <button 
-                      onClick={() => navigate('/profile')} 
+                    <button
+                      onClick={() => navigate('/profile')}
                       style={{ marginTop: '10px', width: '100%', padding: '8px', borderRadius: '8px', background: '#b91c1c', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer', fontSize: '0.75rem' }}
                     >
                       INSUFFICIENT BALANCE - RECHARGE
@@ -329,19 +343,23 @@ const BookingPage = () => {
                 </div>
 
                 {step === 1 ? (
-                  <button 
-                    className="btn-primary full-width" 
-                    disabled={selectedSeats.length === 0}
+                  <button
+                    className="btn-primary full-width"
+                    disabled={selectedSeats.length === 0 || (user?.role !== 'user')}
                     onClick={() => setStep(2)}
                   >
-                    PROCEED TO DETAILS
+                    {user?.role !== 'user' ? 'READ ONLY VIEW' : 'PROCEED TO DETAILS'}
                   </button>
                 ) : (
-                  <button className="btn-primary full-width" onClick={handleBooking} disabled={isProcessing}>
-                    {isProcessing ? 'PROCESSING...' : 'PAY & CONFIRM'}
+                  <button
+                    className="btn-primary full-width"
+                    onClick={handleBooking}
+                    disabled={isProcessing || (user?.role !== 'user')}
+                  >
+                    {user?.role !== 'user' ? 'BOOKING RESTRICTED' : (isProcessing ? 'PROCESSING...' : 'PAY & CONFIRM')}
                   </button>
                 )}
-                
+
                 {step === 2 && (
                   <button className="btn-secondary full-width" style={{ marginTop: '10px' }} onClick={() => setStep(1)}>
                     BACK TO SEATS
@@ -426,8 +444,59 @@ const BookingPage = () => {
         .ticket-summary .row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; }
         
         @media (max-width: 768px) {
-          .booking-layout { grid-template-columns: 1fr; }
-          .booking-stepper { flex-wrap: wrap; }
+          .booking-page { padding: 0.5rem 0; overflow-x: hidden; }
+          .nav-container { padding: 0 10px !important; width: 100%; }
+          
+          .booking-stepper { 
+            flex-direction: row; 
+            justify-content: space-around; 
+            gap: 5px; 
+            margin-bottom: 1.5rem;
+            padding: 0;
+            width: 100%;
+          }
+          .booking-stepper .step { font-size: 0.65rem; flex-direction: column; gap: 4px; text-align: center; }
+          .booking-stepper .step span { margin: 0 auto; }
+          .booking-stepper svg { display: none; }
+          
+          .booking-layout { display: block; width: 100%; padding: 0; }
+          .card { 
+            padding: 1rem 0.5rem; 
+            border-radius: 0; 
+            border-left: none; 
+            border-right: none; 
+            width: 100%;
+            margin: 0;
+            box-shadow: none;
+          }
+          
+          .role-notice { 
+            margin: 0 10px 1rem !important; 
+            font-size: 0.8rem;
+            padding: 10px;
+          }
+
+          .seat-map-container { 
+            transform: none; 
+            width: 100%;
+            max-width: 260px;
+            padding: 20px 10px; 
+            margin: 0 auto 2rem;
+            display: block;
+          }
+          .seat { width: 32px; height: 32px; }
+          .seat-row { gap: 10px; }
+          .seat-legend { flex-wrap: wrap; gap: 10px; margin-top: 1.5rem; justify-content: center; font-size: 0.75rem; }
+          
+          .booking-sidebar { margin-top: 1.5rem; padding: 0 10px; }
+          .form-row { grid-template-columns: 1fr; gap: 1rem; }
+        }
+
+        @media (max-width: 480px) {
+          .booking-stepper .step { font-size: 0.6rem; }
+          .seat-map-container { max-width: 240px; }
+          .seat { width: 28px; height: 28px; }
+          .seat-row { gap: 8px; }
         }
       `}</style>
     </div>

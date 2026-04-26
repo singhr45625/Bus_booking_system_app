@@ -17,6 +17,7 @@ const BookingPage = () => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [step, setStep] = useState(1); // 1: Seats, 2: Details, 3: Payment
   const [isPartialPayment, setIsPartialPayment] = useState(false);
+  const [partialPercent, setPartialPercent] = useState(20); // 20 or 40
   const [loading, setLoading] = useState(true);
 
   // Passenger Form
@@ -72,7 +73,8 @@ const BookingPage = () => {
         busId,
         seatNumbers: selectedSeats,
         passengerDetails: passengerInfo,
-        isPartialPayment: isPartialPayment
+        isPartialPayment: isPartialPayment,
+        partialPaymentPercentage: partialPercent
       }, config);
 
       setLastBooking(data);
@@ -112,11 +114,12 @@ const BookingPage = () => {
 
   const calculateSeatPrice = (seatId) => {
     const isQuick = bus.quickTicketSeats?.includes(seatId);
-    return isQuick ? (bus.price * 1.3) : bus.price;
+    const base = bus.currentPrice || bus.price;
+    return isQuick ? (base * 1.3) : base;
   };
 
   const totalFare = selectedSeats.reduce((acc, seatId) => acc + calculateSeatPrice(seatId), 0);
-  const amountToPayNow = isPartialPayment ? totalFare * 0.2 : totalFare;
+  const amountToPayNow = isPartialPayment ? totalFare * (partialPercent / 100) : totalFare;
 
   return (
     <div className="booking-page animate-fade">
@@ -250,10 +253,15 @@ const BookingPage = () => {
                       Full Payment (100%)
                       <span className="p-amount">₹{totalFare.toLocaleString()}</span>
                     </div>
-                    <div className={`p-card ${isPartialPayment ? 'active' : ''}`} onClick={() => setIsPartialPayment(true)}>
+                    <div className={`p-card ${isPartialPayment && partialPercent === 20 ? 'active' : ''}`} onClick={() => {setIsPartialPayment(true); setPartialPercent(20)}}>
                       Partial Payment (20%)
                       <span className="p-amount">₹{(totalFare * 0.2).toLocaleString()}</span>
                       <small style={{ display: 'block', fontSize: '0.7rem', marginTop: '4px' }}>Pay remaining ₹{(totalFare * 0.8).toLocaleString()} on travel date</small>
+                    </div>
+                    <div className={`p-card ${isPartialPayment && partialPercent === 40 ? 'active' : ''}`} onClick={() => {setIsPartialPayment(true); setPartialPercent(40)}}>
+                      Partial Payment (40%)
+                      <span className="p-amount">₹{(totalFare * 0.4).toLocaleString()}</span>
+                      <small style={{ display: 'block', fontSize: '0.7rem', marginTop: '4px' }}>Pay remaining ₹{(totalFare * 0.6).toLocaleString()} on travel date</small>
                     </div>
                   </div>
                 </div>
@@ -310,7 +318,7 @@ const BookingPage = () => {
                   <>
                     <div className="fare-row" style={{ marginTop: '10px', color: '#666', fontSize: '0.85rem' }}>
                       <span>Remaining Balance</span>
-                      <span>₹{(totalFare * 0.8).toLocaleString()}</span>
+                      <span>₹{(totalFare * (1 - partialPercent / 100)).toLocaleString()}</span>
                     </div>
                     <div className="partial-warning" style={{ background: '#fffbeb', border: '1px solid #fef3c7', padding: '10px', borderRadius: '8px', margin: '15px 0', fontSize: '0.75rem', color: '#92400e', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                       <Info size={14} style={{ marginTop: '2px', flexShrink: 0 }} />

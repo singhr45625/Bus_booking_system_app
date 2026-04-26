@@ -141,7 +141,7 @@ const MyBookings = () => {
                             )}
                             <button className="pay-btn" onClick={() => openModal(b, 'pay')}>PAY BALANCE</button>
                         </div>
-                        <p className="warning-text">Pay by travel date ({b.bus?.date}) or seat will be released.</p>
+                        <p className="warning-text">Pay at least 4 hours before departure or seat will be automatically released.</p>
                     </div>
                   )}
 

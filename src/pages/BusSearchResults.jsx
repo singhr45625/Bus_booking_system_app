@@ -196,7 +196,13 @@ const BusSearchResults = () => {
 
                     <div className="price-col">
                       <span className="label">Starts from</span>
-                      <span className="price">INR {bus.price}</span>
+                      <span className="price">INR {bus.currentPrice || bus.price}</span>
+                      {bus.priceIncreasePercent > 0 && (
+                        <div className="dynamic-pricing-badge">
+                          <span className="demand-text">Demand High</span>
+                          <span className="increase-tag">+{bus.priceIncreasePercent}%</span>
+                        </div>
+                      )}
                       <span className="offer">Save ₹50</span>
                     </div>
                   </div>
@@ -329,6 +335,9 @@ const BusSearchResults = () => {
 
         .price-col { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
         .price-col .price { font-size: 1.4rem; font-weight: 800; color: var(--secondary); }
+        .dynamic-pricing-badge { display: flex; flex-direction: column; align-items: flex-end; margin: 4px 0; }
+        .demand-text { font-size: 0.65rem; color: #d84e55; font-weight: 700; text-transform: uppercase; }
+        .increase-tag { font-size: 0.75rem; background: #fff1f2; color: #e11d48; padding: 1px 6px; border-radius: 4px; font-weight: 800; border: 1px solid #fecdd3; }
         .price-col .offer { font-size: 0.75rem; color: var(--accent); font-weight: 700; }
 
         .card-bottom { background: #fbfbfb; border-top: 1px solid #f0f0f0; padding: 10px 1.5rem; display: flex; justify-content: space-between; align-items: center; }

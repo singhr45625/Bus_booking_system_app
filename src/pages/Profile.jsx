@@ -11,6 +11,21 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const { updateProfile } = useContext(AuthContext);
+
+  // Settings State
+  const [username, setUsername] = useState(user?.username || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    if (user) {
+      setUsername(user.username);
+      setEmail(user.email);
+    }
+  }, [user]);
 
   useEffect(() => {
     refreshUser();
@@ -22,6 +37,32 @@ const Profile = () => {
       alert(`Success! ₹${amount} has been added to your account.`);
     } catch (err) {
       alert('Recharge failed. Please try again.');
+    }
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+
+    if (password !== confirmPassword) {
+      setMessage({ type: 'error', text: 'Passwords do not match' });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const updateData = { username, email };
+      if (password) updateData.password = password;
+
+      await updateProfile(updateData);
+      setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      setPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to update profile' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -128,6 +169,68 @@ const Profile = () => {
               </div>
             </div>
           )}
+
+          {activeTab === 'settings' && (
+            <div className="tab-pane animate-fade">
+              <h2>Account Settings</h2>
+              
+              {message.text && (
+                <div className={`alert-box ${message.type}`}>
+                  {message.text}
+                </div>
+              )}
+
+              <form onSubmit={handleUpdateProfile} className="settings-form">
+                <div className="form-section">
+                  <h3>Personal Information</h3>
+                  <div className="input-group">
+                    <label>Username</label>
+                    <input 
+                      type="text" 
+                      value={username} 
+                      onChange={(e) => setUsername(e.target.value)} 
+                      placeholder="Enter new username"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label>Email Address</label>
+                    <input 
+                      type="email" 
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)} 
+                      placeholder="Enter new email"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h3>Security</h3>
+                  <div className="input-group">
+                    <label>New Password (leave blank to keep current)</label>
+                    <input 
+                      type="password" 
+                      value={password} 
+                      onChange={(e) => setPassword(e.target.value)} 
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label>Confirm New Password</label>
+                    <input 
+                      type="password" 
+                      value={confirmPassword} 
+                      onChange={(e) => setConfirmPassword(e.target.value)} 
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  {loading ? 'Updating...' : 'Save Changes'}
+                </button>
+              </form>
+            </div>
+          )}
         </main>
       </div>
 
@@ -165,6 +268,18 @@ const Profile = () => {
         .profile-balance-card { background: var(--secondary); color: white; padding: 3rem; border-radius: 30px; display: flex; justify-content: space-between; align-items: center; }
         .balance-info span { font-size: 0.9rem; opacity: 0.7; font-weight: 600; }
         .balance-info h1 { font-size: 3.5rem; font-weight: 900; margin: 0.5rem 0 0 0; letter-spacing: -2px; }
+
+        .settings-form { display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem; }
+        .form-section { background: white; padding: 2rem; border-radius: 20px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 1.5rem; }
+        .form-section h3 { margin: 0; font-size: 1.1rem; color: var(--secondary); border-bottom: 1px solid #f0f0f0; padding-bottom: 1rem; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-size: 0.8rem; font-weight: 700; color: #666; }
+        .input-group input { padding: 12px 16px; border: 1px solid #ddd; border-radius: 12px; font-size: 1rem; transition: all 0.3s ease; }
+        .input-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1); }
+        
+        .alert-box { padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.9rem; }
+        .alert-box.success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .alert-box.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
         @media (max-width: 992px) {
           .profile-layout { grid-template-columns: 1fr; gap: 2rem; }

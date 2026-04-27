@@ -74,8 +74,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (userData) => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      const config = {
+        headers: { Authorization: `Bearer ${userInfo?.token}` }
+      };
+      const { data } = await axios.put('/api/auth/profile', userData, config);
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      setUser(data);
+      return data;
+    } catch (err) {
+      console.error('Update Profile Error:', err.response?.data || err.message);
+      throw err;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, addWalletMoney, refreshUser, loading }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, addWalletMoney, refreshUser, updateProfile, loading }}>
       {children}
     </AuthContext.Provider>
   );

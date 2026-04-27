@@ -63,6 +63,16 @@ const BookingPage = () => {
       return;
     }
 
+    // Confirmation Alert
+    const totalWithFee = amountToPayNow + 25;
+    const confirmMessage = isPartialPayment 
+      ? `Confirm partial payment of ₹${totalWithFee.toLocaleString()}? \n\n(Remaining ₹${(totalFare * (1 - partialPercent / 100)).toLocaleString()} to be paid on travel date)`
+      : `Confirm total payment of ₹${totalWithFee.toLocaleString()}?`;
+    
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
     setIsProcessing(true);
     try {
       // Mock Payment Process Delay

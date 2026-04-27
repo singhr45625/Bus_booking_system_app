@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { User, Mail, Shield, Wallet, History, Settings, ChevronRight, LogOut, Camera, ChevronLeft } from 'lucide-react';
+import { User, Mail, Shield, Wallet, History, Settings, ChevronRight, LogOut, Camera, ChevronLeft, Ticket } from 'lucide-react';
 import axios from 'axios';
 import MockPaymentModal from '../components/MockPaymentModal';
 
@@ -20,12 +20,35 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  // Booking History State
+  const [bookings, setBookings] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
   useEffect(() => {
     if (user) {
       setUsername(user.username);
       setEmail(user.email);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (activeTab === 'history') {
+      fetchBookings();
+    }
+  }, [activeTab]);
+
+  const fetchBookings = async () => {
+    setHistoryLoading(true);
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      const { data } = await axios.get('/api/bookings/my-bookings', config);
+      setBookings(data);
+    } catch (err) {
+      console.error('Error fetching bookings', err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   useEffect(() => {
     refreshUser();
@@ -170,6 +193,57 @@ const Profile = () => {
             </div>
           )}
 
+          {activeTab === 'history' && (
+            <div className="tab-pane animate-fade">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h2>Booking History</h2>
+                <button className="refresh-btn" onClick={fetchBookings} disabled={historyLoading}>
+                  <History size={16} /> {historyLoading ? 'Loading...' : 'Refresh'}
+                </button>
+              </div>
+
+              {historyLoading ? (
+                <div className="history-loading">
+                  <div className="spinner-sm"></div>
+                  <p>Fetching your trips...</p>
+                </div>
+              ) : bookings.length === 0 ? (
+                <div className="empty-history">
+                  <Ticket size={40} />
+                  <p>No bookings found. Time to plan a trip!</p>
+                  <button className="btn-primary" onClick={() => navigate('/')}>Book Now</button>
+                </div>
+              ) : (
+                <div className="history-list">
+                  {bookings.map(b => (
+                    <div key={b._id} className="history-item">
+                      <div className="trip-main">
+                        <div className="trip-route">
+                          <strong>{b.bus?.source}</strong>
+                          <ChevronRight size={14} />
+                          <strong>{b.bus?.destination}</strong>
+                        </div>
+                        <p className="bus-name">{b.bus?.name}</p>
+                        <div className="trip-meta">
+                          <span><Ticket size={12} /> {b.seatNumbers?.join(', ')}</span>
+                          <span><Wallet size={12} /> ₹{b.paidAmount?.toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <div className="trip-status">
+                        <span className={`status-pill ${b.status?.replace(' ', '-').toLowerCase()}`}>
+                          {b.status}
+                        </span>
+                        <button className="view-btn" onClick={() => navigate('/my-bookings')}>
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'settings' && (
             <div className="tab-pane animate-fade">
               <h2>Account Settings</h2>
@@ -280,6 +354,33 @@ const Profile = () => {
         .alert-box { padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.9rem; }
         .alert-box.success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .alert-box.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+        .history-list { display: flex; flex-direction: column; gap: 1rem; }
+        .history-item { background: white; padding: 1.5rem; border-radius: 16px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; }
+        .history-item:hover { transform: translateX(5px); border-color: var(--primary); }
+        
+        .trip-route { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .bus-name { margin: 0; font-size: 0.85rem; color: #666; font-weight: 600; }
+        .trip-meta { display: flex; gap: 15px; margin-top: 10px; font-size: 0.8rem; color: #aaa; font-weight: 700; }
+        .trip-meta span { display: flex; align-items: center; gap: 5px; }
+        
+        .trip-status { text-align: right; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+        .status-pill { font-size: 0.65rem; font-weight: 900; padding: 4px 12px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-pill.confirmed { background: #eefaf3; color: #15904f; }
+        .status-pill.partially-paid { background: #fffbeb; color: #b45309; }
+        .status-pill.boarded { background: #eff6ff; color: #2563eb; }
+        .status-pill.cancelled { background: #fef2f2; color: #b91c1c; }
+        
+        .view-btn { background: none; border: none; color: var(--primary); font-size: 0.8rem; font-weight: 800; cursor: pointer; padding: 0; }
+        .view-btn:hover { text-decoration: underline; }
+        
+        .empty-history { text-align: center; padding: 4rem 2rem; color: #ccc; display: flex; flex-direction: column; align-items: center; gap: 1rem; background: #fafafa; border-radius: 20px; border: 2px dashed #eee; }
+        .empty-history p { color: #666; font-weight: 700; margin: 0; }
+        
+        .history-loading { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 3rem; color: #aaa; font-weight: 700; }
+        
+        .refresh-btn { display: flex; align-items: center; gap: 8px; background: #f8f9fa; border: 1px solid #eee; padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
+        .refresh-btn:hover { background: #eee; }
 
         @media (max-width: 992px) {
           .profile-layout { grid-template-columns: 1fr; gap: 2rem; }
